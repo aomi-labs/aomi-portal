@@ -1,36 +1,55 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# aomi-chat-design
 
-## Getting Started
+Clickable **design mock** of the Aomi chat journey — a standalone playground
+(like Aomi Build) for iterating on the chat experience without the real
+portal, auth, backend, or wallet signing.
 
-First, run the development server:
+> **Simulation only.** No real auth, signing, BFF, secrets, or production data.
+> See "Never copy into the mock" in [`CHAT-ARCHITECTURE.md`](./CHAT-ARCHITECTURE.md) §8.
+
+## Status
+
+Skeleton scaffold. **Visual design is intentionally not implemented** — it is
+waiting on a design reference (sketch / Figma / screenshots). The current UI is
+structural placeholders only; do not invent a look before the reference lands.
+
+## Stack
+
+- Next.js 16 (App Router)
+- React 19
+- Tailwind CSS 4
+- TypeScript
+
+## Getting started
 
 ```bash
-npm run dev
-# or
-yarn dev
-# or
+pnpm install
 pnpm dev
-# or
-bun dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+Then open http://localhost:3000.
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+## Layout
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+```text
+CHAT-ARCHITECTURE.md          # journey map, surfaces, state matrix, guardrails
+src/app/page.tsx              # thin → ChatMockView
+src/features/chat/
+  chat-view.tsx               # thin orchestrator (structural placeholders)
+  contracts.ts                # typed contracts (surfaces + state matrix)
+  fixtures.ts                 # safe-to-fake seed data only
+  hooks/use-chat-session.ts   # single simulation driver
+  components/                 # surface components — added with the design
+```
 
-## Learn More
+## Scope
 
-To learn more about Next.js, take a look at the following resources:
+Core journey only (per `CHAT-ARCHITECTURE.md` §7): empty → chat → working trace
+→ wallet approval → settings. No deployments, device-auth, or MCP flows.
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+## Next steps
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
-
-## Deploy on Vercel
-
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+1. Receive the design reference.
+2. Author `CHAT-EXPERIENCE.md` (map, mock-vs-target, phases).
+3. Build surface components under `src/features/chat/components/`.
+4. Flesh out `use-chat-session` timing with honest simulation labels.
