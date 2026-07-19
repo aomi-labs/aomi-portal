@@ -42,7 +42,26 @@ export interface ToolStep {
   status: "pending" | "running" | "done" | "error";
   /** Safe-to-fake tool result summary. */
   result?: string;
+  /** Tool-call chips shown under the step (safe-to-fake names). */
+  tools?: string[];
 }
+
+/** Simulated swap/transaction preview rendered outside the trace. */
+export interface TxPreview {
+  provider: string;
+  paySymbol: string;
+  payAmount: string;
+  receiveSymbol: string;
+  receiveAmount: string;
+  rate: string;
+  slippage: string;
+  gas: string;
+}
+
+/** Which blocking overlay (if any) is shown over the chat. */
+export type Overlay = "none" | "wallet" | "settings";
+
+export type Theme = "dark" | "light";
 
 export interface Thread {
   id: string;

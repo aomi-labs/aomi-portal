@@ -1,64 +1,83 @@
 "use client";
 
 /**
- * ChatMockView — thin orchestrator for the Aomi chat mock.
+ * ChatMockView — orchestrator for the Aomi chat mock.
  *
- * This renders STRUCTURAL PLACEHOLDERS for the product surfaces in
- * ../../../CHAT-ARCHITECTURE.md (§3). There is intentionally NO visual craft
- * here — no color system, typography scale, spacing rhythm, or component
- * design. Those land only after a design reference is supplied.
- *
- * Keep this file thin: it wires surfaces to the single `useChatSession`
- * driver. Surface components get their own files under ./components once the
- * design exists.
+ * Single tree (per CHAT-ARCHITECTURE.md §8): the settings + wallet overlays
+ * mount inside the same shell — no second runtime. State here drives which
+ * scene/overlay shows. Simulation only.
  */
 
-import { useChatSession } from "./hooks/use-chat-session";
+import { useState } from "react";
+import type { Overlay, Theme } from "./contracts";
+import { seedAccount, seedThreads, seedTx } from "./fixtures";
+import { Sidebar } from "./components/sidebar";
+import { ChatHeader } from "./components/chat-header";
+import { EmptyState } from "./components/empty-state";
+import { Conversation } from "./components/conversation";
+import { WalletModal } from "./components/wallet-modal";
+import { SettingsModal } from "./components/settings-modal";
+
+const SWAP_THREAD_ID = "t-swap";
 
 export function ChatMockView() {
-  const { snapshot } = useChatSession();
+  const [theme, setTheme] = useState<Theme>("dark");
+  const [activeThreadId, setActiveThreadId] = useState<string | null>(SWAP_THREAD_ID);
+  const [overlay, setOverlay] = useState<Overlay>("none");
+
+  const activeThread = seedThreads.find((t) => t.id === activeThreadId) ?? null;
+  const hasConversation =
+    activeThreadId === SWAP_THREAD_ID && (activeThread?.messages.length ?? 0) > 0;
+  const userMessage = activeThread?.messages[0]?.content ?? "";
+  const headerTitle = activeThread?.title ?? "New chat";
 
   return (
-    <div data-mock-root className="flex min-h-full flex-1 flex-col">
-      <p data-mock-note>
-        Aomi chat mock — skeleton only. Current state:{" "}
-        <strong>{snapshot.state}</strong>. Visual design is pending a reference;
-        surfaces below are structural placeholders (see CHAT-ARCHITECTURE.md
-        §3).
-      </p>
+    <div className={theme === "dark" ? "dark" : ""}>
+      <div className="flex h-screen w-full bg-background text-fg">
+        <Sidebar
+          account={seedAccount}
+          threads={seedThreads}
+          activeThreadId={activeThreadId}
+          onSelectThread={setActiveThreadId}
+          onNewChat={() => setActiveThreadId(null)}
+        />
 
-      <div data-mock-layout className="flex flex-1">
-        {/* §3 Sidebar / threads */}
-        <aside data-surface="sidebar" aria-label="Threads">
-          <p>Sidebar / threads — New Chat, skeletons, active row, archive</p>
-        </aside>
+        <main className="relative flex flex-1 flex-col">
+          <ChatHeader
+            title={headerTitle}
+            network={seedAccount.network ?? "Ethereum"}
+            theme={theme}
+            onToggleTheme={() => setTheme((t) => (t === "dark" ? "light" : "dark"))}
+            onOpenSettings={() => setOverlay("settings")}
+          />
 
-        <div data-surface="conversation" className="flex flex-1 flex-col">
-          {/* §3 Header */}
-          <header data-surface="header">
-            <p>Header — toggle, title, settings gear, account menu</p>
-          </header>
+          {hasConversation ? (
+            <Conversation
+              userMessage={userMessage}
+              onApprove={() => setOverlay("wallet")}
+              onSend={() => setActiveThreadId(SWAP_THREAD_ID)}
+            />
+          ) : (
+            <EmptyState onSend={() => setActiveThreadId(SWAP_THREAD_ID)} />
+          )}
 
-          {/* §3 Empty chat / Messages / Working trace */}
-          <main data-surface="thread" className="flex-1">
-            <p>Empty chat — greeting + suggestions</p>
-            <p>Messages — user/assistant, edit, copy, rerun, branch, errors</p>
-            <p>Working trace — tool steps; final answer rendered OUTSIDE trace</p>
-          </main>
-
-          {/* §3 Composer / controls */}
-          <footer data-surface="composer">
-            <p>Composer — input, send↔stop, network/model/app controls</p>
-          </footer>
-        </div>
-      </div>
-
-      {/* Overlays — mounted in the single tree, toggled by state (§4). */}
-      <div data-surface="overlays" hidden>
-        <p>Settings modal — General, Usage, App Keys, Bots, Secrets, BYOK</p>
-        <p>Wallet approval — external/simulated approve/reject</p>
-        <p>Gates — payment / required secrets</p>
-        <p>Notifications — toasts / system notices</p>
+          {overlay === "wallet" && (
+            <WalletModal
+              tx={seedTx}
+              onApprove={() => setOverlay("none")}
+              onReject={() => setOverlay("none")}
+            />
+          )}
+          {overlay === "settings" && (
+            <SettingsModal
+              theme={theme}
+              address={seedAccount.address ?? ""}
+              network={seedAccount.network ?? "Ethereum"}
+              onSetTheme={setTheme}
+              onClose={() => setOverlay("none")}
+            />
+          )}
+        </main>
       </div>
     </div>
   );

@@ -11,7 +11,18 @@
 
 import { useCallback, useMemo, useState } from "react";
 import type { ChatSnapshot, SessionState } from "./../contracts";
-import { initialSnapshot } from "./../fixtures";
+import { seedAccount, seedThreads } from "./../fixtures";
+
+const initialSnapshot: ChatSnapshot = {
+  state: "connected",
+  account: seedAccount,
+  threads: seedThreads,
+  activeThreadId: seedThreads[0]?.id ?? null,
+  trace: [],
+  walletRequest: null,
+  gate: null,
+  settingsTab: null,
+};
 
 export interface ChatSessionApi {
   snapshot: ChatSnapshot;

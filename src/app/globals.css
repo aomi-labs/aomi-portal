@@ -1,26 +1,62 @@
 @import "tailwindcss";
 
+/*
+ * Aomi chat mock — theme tokens (Vibe-derived).
+ * Light values in :root, dark values under .dark — one class flips the app.
+ * Mirrors the Paper design tokens in ../../../CHAT-ARCHITECTURE.md.
+ */
+
 :root {
   --background: #ffffff;
-  --foreground: #171717;
+  --surface: #f6f6f4;
+  --surface-2: #ecece8;
+  --border: #e6e6e3;
+  --fg: #171717;
+  --muted: #6b6b6b;
+  --accent: #ff6a00;
+  --accent-strong: #fa5111;
+  --info: #2f6feb;
+  --success: #3fb950;
+  --on-accent: #0a0a0a;
+}
+
+.dark {
+  --background: #0a0a0a;
+  --surface: #161616;
+  --surface-2: #1f1f1f;
+  --border: #2a2a2a;
+  --fg: #ededed;
+  --muted: #8a8a8a;
 }
 
 @theme inline {
   --color-background: var(--background);
-  --color-foreground: var(--foreground);
+  --color-surface: var(--surface);
+  --color-surface-2: var(--surface-2);
+  --color-border: var(--border);
+  --color-fg: var(--fg);
+  --color-muted: var(--muted);
+  --color-accent: var(--accent);
+  --color-accent-strong: var(--accent-strong);
+  --color-info: var(--info);
+  --color-success: var(--success);
+  --color-on-accent: var(--on-accent);
+
   --font-sans: var(--font-geist-sans);
   --font-mono: var(--font-geist-mono);
+
+  --radius-sm: 8px;
+  --radius-md: 12px;
+  --radius-lg: 16px;
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
+html,
+body {
+  height: 100%;
 }
 
 body {
   background: var(--background);
-  color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+  color: var(--fg);
+  font-family: var(--font-sans), system-ui, sans-serif;
 }
