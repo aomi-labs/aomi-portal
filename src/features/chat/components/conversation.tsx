@@ -26,7 +26,7 @@ export function Conversation({ userMessage, onApprove, onSend }: ConversationPro
 
           <div className="flex w-full gap-3">
             <div className="pt-0.5">
-              <AomiMark size={28} inner={11} />
+              <AomiMark size={26} />
             </div>
             <div className="flex min-w-0 flex-1 flex-col gap-4">
               <WorkingTrace durationLabel="Worked for 8s" steps={seedTrace} />

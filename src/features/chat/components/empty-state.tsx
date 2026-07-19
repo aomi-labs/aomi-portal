@@ -18,7 +18,7 @@ export function EmptyState({ onSend }: { onSend: () => void }) {
     <div className="flex flex-1 flex-col items-center justify-center px-6">
       <div className="flex w-full max-w-[720px] flex-col items-center gap-6">
         <div className="flex flex-col items-center gap-4">
-          <AomiMark size={52} inner={20} />
+          <AomiMark size={52} />
           <h1 className="text-center text-[30px] font-semibold tracking-[-0.02em]">
             What can I help you onchain?
           </h1>
