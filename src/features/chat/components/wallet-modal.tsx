@@ -11,47 +11,51 @@ interface WalletModalProps {
 
 export function WalletModal({ tx, onApprove, onReject }: WalletModalProps) {
   return (
-    <div className="absolute inset-0 flex items-center justify-center">
+    <div className="absolute inset-0 z-20 flex items-center justify-center p-4">
       <button
         aria-label="Dismiss"
         onClick={onReject}
         className="absolute inset-0 bg-black/55"
       />
-      <div className="relative flex w-[400px] flex-col overflow-hidden rounded-[var(--radius-lg)] border border-border bg-surface shadow-[0_24px_60px_rgba(0,0,0,0.5)]">
-        <div className="flex items-center gap-2.5 border-b border-border px-[18px] py-4">
-          <div className="flex h-[26px] w-[26px] items-center justify-center rounded-[8px] bg-surface-2">
+      <div className="relative flex w-full max-w-[400px] flex-col overflow-hidden rounded-[var(--radius-lg)] border border-border bg-surface shadow-[0_24px_60px_rgba(0,0,0,0.5)]">
+        <div className="flex h-14 items-center gap-2.5 border-b border-border px-4">
+          <div className="flex h-7 w-7 shrink-0 items-center justify-center rounded-[8px] bg-surface-2">
             <WalletIcon size={15} />
           </div>
-          <span className="flex-1 text-sm font-semibold">Wallet</span>
-          <div className="flex items-center gap-1.5 rounded-full border border-border px-2.5 py-1">
+          <span className="min-w-0 flex-1 truncate text-sm font-semibold leading-none">
+            Wallet
+          </span>
+          <div className="flex h-6 shrink-0 items-center gap-1.5 rounded-full border border-border px-2.5">
             <span className="h-1.5 w-1.5 rounded-full bg-accent" />
-            <span className="font-mono text-[11px] text-muted">Simulation</span>
+            <span className="font-mono text-[11px] leading-none text-muted">Simulation</span>
           </div>
         </div>
 
-        <div className="flex flex-col items-center gap-1 px-[18px] py-5">
-          <span className="text-[17px] font-semibold">Approve transaction</span>
-          <span className="text-center text-[13px] text-muted">
-            app.aomi.xyz requests a swap on {tx.receiveSymbol === "USDC" ? "Ethereum" : "Ethereum"}
-          </span>
+        <div className="flex flex-col items-center gap-1.5 px-5 py-5 text-center">
+          <h2 className="text-[17px] font-semibold leading-tight tracking-[-0.015em]">
+            Approve transaction
+          </h2>
+          <p className="max-w-[32ch] text-[13px] leading-snug text-muted text-pretty">
+            app.aomi.xyz requests a swap on Ethereum
+          </p>
         </div>
 
-        <div className="flex flex-col gap-3 px-[18px] pb-[18px]">
+        <div className="flex flex-col gap-3 px-4 pb-4">
           <div className="flex flex-col overflow-hidden rounded-[var(--radius-md)] border border-border">
             <Row label="Send" value={tx.payAmount} border />
             <Row label="Receive (est.)" value={tx.receiveAmount} border />
             <Row label="Network fee" value={tx.gas} mono />
           </div>
-          <div className="flex gap-2.5 pt-0.5">
+          <div className="flex gap-2.5">
             <button
               onClick={onReject}
-              className="flex flex-1 items-center justify-center rounded-[var(--radius-sm)] border border-border py-3 text-sm font-medium"
+              className="flex h-11 flex-1 items-center justify-center rounded-[var(--radius-sm)] border border-border text-sm font-medium leading-none"
             >
               Reject
             </button>
             <button
               onClick={onApprove}
-              className="flex flex-1 items-center justify-center rounded-[var(--radius-sm)] bg-gradient-to-br from-accent to-accent-strong py-3 text-sm font-semibold text-on-accent"
+              className="flex h-11 flex-1 items-center justify-center rounded-[var(--radius-sm)] bg-gradient-to-br from-accent to-accent-strong text-sm font-semibold leading-none text-on-accent"
             >
               Approve
             </button>
@@ -75,12 +79,16 @@ function Row({
 }) {
   return (
     <div
-      className={`flex items-center justify-between px-3.5 py-3 ${
+      className={`flex items-center justify-between gap-4 px-3.5 py-3 ${
         border ? "border-b border-border" : ""
       }`}
     >
-      <span className="text-[13px] text-muted">{label}</span>
-      <span className={`${mono ? "font-mono text-[13px]" : "text-sm font-semibold"}`}>
+      <span className="shrink-0 text-[13px] leading-none text-muted">{label}</span>
+      <span
+        className={`min-w-0 truncate text-right tabular-nums ${
+          mono ? "font-mono text-[13px] leading-none" : "text-sm font-semibold leading-none"
+        }`}
+      >
         {value}
       </span>
     </div>

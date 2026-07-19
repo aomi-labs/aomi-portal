@@ -16,35 +16,44 @@ export function WorkingTrace({ durationLabel, steps }: WorkingTraceProps) {
     <div className="flex flex-col overflow-hidden rounded-[var(--radius-md)] border border-border">
       <button
         onClick={() => setOpen((v) => !v)}
-        className="flex items-center gap-2.5 bg-surface px-3.5 py-[11px] text-left"
+        className="flex h-11 items-center gap-2.5 bg-surface px-3.5 text-left"
       >
-        <Check size={14} className="text-success" />
-        <span className="text-[13px] font-medium">{durationLabel}</span>
-        <span className="font-mono text-xs text-muted">{steps.length} steps</span>
+        <span className="flex h-4 w-4 shrink-0 items-center justify-center">
+          <Check size={15} className="text-success" />
+        </span>
+        <span className="truncate text-[13px] font-medium leading-none">{durationLabel}</span>
+        <span className="shrink-0 font-mono text-[11px] leading-none text-muted">
+          {steps.length} steps
+        </span>
         <span className="flex-1" />
         {open ? (
-          <ChevronUp size={14} className="text-muted" />
+          <ChevronUp size={14} className="shrink-0 text-muted" />
         ) : (
-          <ChevronDown size={14} className="text-muted" />
+          <ChevronDown size={14} className="shrink-0 text-muted" />
         )}
       </button>
 
       {open && (
-        <div className="flex flex-col gap-3 border-t border-border px-3.5 pb-3.5 pt-3">
+        <div className="flex flex-col gap-3 border-t border-border px-3.5 py-3">
           {steps.map((step) => (
             <div key={step.id} className="flex items-start gap-2.5">
-              <Check size={14} className="mt-0.5 flex-shrink-0 text-success" />
-              <div className="flex min-w-0 flex-col gap-2">
-                <span className="font-mono text-[13px]">{step.label}</span>
+              {/* Fixed icon lane — keeps labels vertically aligned */}
+              <span className="mt-0.5 flex h-4 w-4 shrink-0 items-center justify-center">
+                <Check size={14} className="text-success" />
+              </span>
+              <div className="flex min-w-0 flex-1 flex-col gap-2">
+                <span className="truncate font-mono text-[13px] leading-snug">{step.label}</span>
                 {step.tools && (
                   <div className="flex flex-wrap gap-1.5">
                     {step.tools.map((tool) => (
                       <span
                         key={tool}
-                        className="flex items-center gap-1.5 rounded-full bg-surface-2 px-2.5 py-1"
+                        className="inline-flex h-6 max-w-full items-center gap-1.5 rounded-full bg-surface-2 px-2"
                       >
-                        <span className="h-[5px] w-[5px] rounded-full bg-accent" />
-                        <span className="font-mono text-xs text-muted">{tool}</span>
+                        <span className="h-1 w-1 shrink-0 rounded-full bg-accent" />
+                        <span className="truncate font-mono text-[11px] leading-none text-muted">
+                          {tool}
+                        </span>
                       </span>
                     ))}
                   </div>

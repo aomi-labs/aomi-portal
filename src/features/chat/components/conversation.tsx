@@ -17,33 +17,33 @@ export function Conversation({ userMessage, onApprove, onSend }: ConversationPro
   return (
     <>
       <div className="flex flex-1 flex-col items-center overflow-y-auto px-6 py-8">
-        <div className="flex w-full max-w-[720px] flex-col gap-6">
+        <div className="flex w-full max-w-[680px] flex-col gap-6">
           <div className="flex w-full justify-end">
-            <div className="max-w-[70%] rounded-2xl rounded-br-md bg-surface-2 px-[15px] py-[11px]">
-              <span className="text-[15px] leading-[22px]">{userMessage}</span>
+            <div className="max-w-[min(70%,28rem)] rounded-2xl rounded-br-md bg-surface-2 px-3.5 py-2.5">
+              <p className="text-[15px] leading-[1.45] text-pretty">{userMessage}</p>
             </div>
           </div>
 
           <div className="flex w-full gap-3">
             <div className="pt-0.5">
-              <AomiMark size={26} />
+              <AomiMark size={24} />
             </div>
             <div className="flex min-w-0 flex-1 flex-col gap-4">
               <WorkingTrace durationLabel="Worked for 8s" steps={seedTrace} />
 
               <div className="flex flex-col gap-3.5">
-                <p className="text-[15px] leading-[23px]">{answerText}</p>
+                <p className="text-[15px] leading-[1.55] text-pretty">{answerText}</p>
                 <TxPreviewCard tx={seedTx} onApprove={onApprove} onCancel={onApprove} />
-                <div className="flex items-center gap-3.5 pt-0.5 text-muted">
-                  <button className="transition-colors hover:text-fg" aria-label="Copy">
+                <div className="flex items-center gap-1 pt-0.5 text-muted">
+                  <ActionBtn label="Copy">
                     <Copy size={15} />
-                  </button>
-                  <button className="transition-colors hover:text-fg" aria-label="Rerun">
+                  </ActionBtn>
+                  <ActionBtn label="Rerun">
                     <Rerun size={15} />
-                  </button>
-                  <button className="transition-colors hover:text-fg" aria-label="Branch">
+                  </ActionBtn>
+                  <ActionBtn label="Branch">
                     <Branch size={15} />
-                  </button>
+                  </ActionBtn>
                 </div>
               </div>
             </div>
@@ -51,9 +51,20 @@ export function Conversation({ userMessage, onApprove, onSend }: ConversationPro
         </div>
       </div>
 
-      <div className="flex flex-shrink-0 justify-center px-6 pb-6 pt-4">
+      <div className="flex shrink-0 justify-center px-6 pb-6 pt-3">
         <Composer variant="dock" placeholder="Reply to Aomi…" onSend={onSend} />
       </div>
     </>
+  );
+}
+
+function ActionBtn({ label, children }: { label: string; children: React.ReactNode }) {
+  return (
+    <button
+      className="flex h-7 w-7 items-center justify-center rounded-[var(--radius-sm)] transition-colors hover:bg-surface-2 hover:text-fg"
+      aria-label={label}
+    >
+      {children}
+    </button>
   );
 }

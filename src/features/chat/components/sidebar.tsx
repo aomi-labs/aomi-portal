@@ -1,11 +1,12 @@
 "use client";
 
+import Image from "next/image";
 import type { Account, Thread } from "../contracts";
 import { ChevronDown, ChevronExpand, PanelLeft, Plus } from "./icons";
 
 /** Real Aomi mark (circle-orbit glyph). currentColor — themes automatically. */
 function AomiMark({
-  size = 24,
+  size = 22,
   className = "",
 }: {
   size?: number;
@@ -51,45 +52,60 @@ export function Sidebar({
   onNewChat,
 }: SidebarProps) {
   return (
-    <aside className="flex h-full w-[260px] flex-shrink-0 flex-col border-r border-border bg-surface">
-      <div className="flex items-center justify-between px-4 pb-3 pt-4">
-        <div className="flex items-center gap-2">
-          <AomiMark />
-          <span className="text-[15px] font-semibold tracking-[-0.01em]">Aomi</span>
-          <ChevronDown size={14} className="text-muted" />
-        </div>
-        <button className="text-muted transition-colors hover:text-fg">
+    <aside className="flex h-full w-[260px] shrink-0 flex-col border-r border-border bg-surface">
+      {/* Brand row — fixed icon slots keep mark + chevron aligned */}
+      <div className="flex h-14 items-center justify-between gap-3 px-3.5">
+        <button className="flex min-w-0 items-center gap-2 rounded-[var(--radius-sm)] px-1 py-1 transition-colors hover:bg-surface-2/60">
+          <AomiMark size={22} />
+          <span className="truncate text-[15px] font-semibold leading-none tracking-[-0.015em]">
+            Aomi
+          </span>
+          <ChevronDown size={14} className="shrink-0 text-muted" />
+        </button>
+        <button
+          className="flex h-8 w-8 shrink-0 items-center justify-center rounded-[var(--radius-sm)] text-muted transition-colors hover:bg-surface-2 hover:text-fg"
+          aria-label="Collapse sidebar"
+        >
           <PanelLeft size={18} />
         </button>
       </div>
 
       <button
         onClick={onNewChat}
-        className="mx-3 flex items-center gap-2 rounded-[var(--radius-sm)] border border-border bg-surface-2 px-3 py-[9px] text-left transition-colors hover:border-muted/40"
+        className="mx-3 flex h-10 items-center gap-2.5 rounded-[var(--radius-sm)] border border-border bg-surface-2 px-3 text-left transition-colors hover:border-muted/40"
       >
-        <Plus size={16} />
-        <span className="text-sm font-medium">New chat</span>
+        <span className="flex h-4 w-4 shrink-0 items-center justify-center">
+          <Plus size={16} />
+        </span>
+        <span className="text-sm font-medium leading-none">New chat</span>
       </button>
 
-      <div className="flex flex-1 flex-col gap-0.5 px-2 pt-5">
-        <span className="px-2 pb-2 text-xs font-medium text-muted">Recent</span>
+      {/* Thread list — active indicator in fixed-width lane */}
+      <div className="mt-4 flex min-h-0 flex-1 flex-col gap-0.5 overflow-y-auto px-2 pb-2">
+        <span className="px-2.5 pb-2 text-[11px] font-medium uppercase tracking-[0.06em] text-muted">
+          Recent
+        </span>
         {threads.map((t) => {
           const active = t.id === activeThreadId;
           return (
             <button
               key={t.id}
               onClick={() => onSelectThread(t.id)}
-              className={`flex items-center gap-2 rounded-[var(--radius-sm)] px-2.5 py-2 text-left transition-colors ${
+              className={`flex h-9 items-center gap-2 rounded-[var(--radius-sm)] px-2.5 text-left transition-colors ${
                 active ? "bg-surface-2" : "hover:bg-surface-2/60"
               }`}
             >
+              <span className="flex h-3 w-3 shrink-0 items-center justify-center">
+                <span
+                  className={`h-1.5 w-1.5 rounded-full ${
+                    active ? "bg-accent" : "bg-transparent"
+                  }`}
+                />
+              </span>
               <span
-                className={`h-1.5 w-1.5 flex-shrink-0 rounded-full ${
-                  active ? "bg-accent" : "bg-transparent"
+                className={`min-w-0 flex-1 truncate text-[13px] leading-snug ${
+                  active ? "font-medium text-fg" : "text-muted"
                 }`}
-              />
-              <span
-                className={`truncate text-sm ${active ? "text-fg" : "text-muted"}`}
               >
                 {t.title}
               </span>
@@ -98,17 +114,24 @@ export function Sidebar({
         })}
       </div>
 
-      <div className="m-2 flex items-center gap-2.5 rounded-[var(--radius-sm)] border border-border p-3">
-        <div className="flex h-7 w-7 flex-shrink-0 items-center justify-center rounded-full bg-surface-2 text-xs font-semibold">
-          GE
-        </div>
-        <div className="flex min-w-0 flex-1 flex-col">
-          <span className="truncate text-[13px] font-medium">{account.address}</span>
-          <span className="text-[11px] text-muted">
+      {/* Account — avatar + two-line identity, never wrap */}
+      <div className="m-2 flex items-center gap-2.5 rounded-[var(--radius-sm)] border border-border p-2.5">
+        <Image
+          src="/avatar.png"
+          alt=""
+          width={28}
+          height={28}
+          className="h-7 w-7 shrink-0 rounded-full object-cover"
+        />
+        <div className="flex min-w-0 flex-1 flex-col gap-0.5">
+          <span className="truncate font-mono text-[12px] font-medium leading-none tracking-tight">
+            {account.address}
+          </span>
+          <span className="truncate text-[11px] leading-none text-muted">
             {account.credits?.toLocaleString()} credits
           </span>
         </div>
-        <ChevronExpand size={16} className="flex-shrink-0 text-muted" />
+        <ChevronExpand size={16} className="shrink-0 text-muted" />
       </div>
     </aside>
   );
