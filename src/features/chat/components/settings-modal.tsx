@@ -1,39 +1,46 @@
 "use client";
 
-import { useState, type ComponentType } from "react";
-import type { SettingsTab, Theme } from "../contracts";
+import { useState, type ComponentType, type ReactNode } from "react";
+import type {
+  AccountOverview,
+  DelegationGrant,
+  SettingsTab,
+  Theme,
+  WalletPolicy,
+} from "../contracts";
+import { AccountSettings } from "./account-settings";
+import { UsageSettings } from "./usage-settings";
 import {
-  Bot,
   Chart,
   ChevronDown,
   Close,
-  Key,
-  Lock,
-  Shield,
   Sliders,
+  User,
+  WalletIcon,
 } from "./icons";
 
 const NAV: { id: SettingsTab; label: string; Icon: ComponentType<{ size?: number; className?: string }> }[] = [
   { id: "general", label: "General", Icon: Sliders },
+  { id: "account", label: "Account", Icon: WalletIcon },
   { id: "usage", label: "Usage", Icon: Chart },
-  { id: "appKeys", label: "App Keys", Icon: Key },
-  { id: "bots", label: "Bots", Icon: Bot },
-  { id: "secrets", label: "Secrets", Icon: Lock },
-  { id: "byok", label: "BYOK", Icon: Shield },
 ];
 
 interface SettingsModalProps {
   theme: Theme;
-  address: string;
   network: string;
+  account: AccountOverview;
+  wallets: WalletPolicy[];
+  grants: DelegationGrant[];
   onSetTheme: (t: Theme) => void;
   onClose: () => void;
 }
 
 export function SettingsModal({
   theme,
-  address,
   network,
+  account,
+  wallets,
+  grants,
   onSetTheme,
   onClose,
 }: SettingsModalProps) {
@@ -78,51 +85,147 @@ export function SettingsModal({
           </div>
 
           {tab === "general" ? (
-            <div className="flex flex-col gap-[18px] p-[22px]">
-              <SettingRow title="Theme" desc="Match system, light, or dark">
-                <div className="flex rounded-full border border-border p-[3px]">
-                  {(["dark", "light"] as Theme[]).map((t) => (
-                    <button
-                      key={t}
-                      onClick={() => onSetTheme(t)}
-                      className={`rounded-full px-3 py-[5px] text-xs capitalize ${
-                        theme === t ? "bg-surface-2 font-medium text-fg" : "text-muted"
-                      }`}
-                    >
-                      {t}
-                    </button>
-                  ))}
-                  <button className="rounded-full px-3 py-[5px] text-xs text-muted">
-                    System
-                  </button>
-                </div>
-              </SettingRow>
-              <Divider />
-              <SettingRow title="Default network" desc="Used for new chats">
-                <div className="flex items-center gap-[7px] rounded-[var(--radius-sm)] border border-border px-3 py-[7px]">
-                  <span className="h-[7px] w-[7px] rounded-full bg-success" />
-                  <span className="text-[13px]">{network}</span>
-                  <ChevronDown size={12} className="text-muted" />
-                </div>
-              </SettingRow>
-              <Divider />
-              <SettingRow title="Connected wallet" desc={address} descMono>
-                <button className="rounded-[var(--radius-sm)] border border-border px-3.5 py-2 text-[13px] font-medium text-muted transition-colors hover:text-fg">
-                  Disconnect
-                </button>
-              </SettingRow>
-            </div>
+            <GeneralTab
+              theme={theme}
+              network={network}
+              account={account}
+              onSetTheme={onSetTheme}
+              onManageAccount={() => setTab("account")}
+            />
+          ) : tab === "account" ? (
+            <AccountSettings
+              accountId={account.userId}
+              email={account.verifiedEmail}
+              wallets={wallets}
+              grants={grants}
+            />
           ) : (
-            <div className="flex flex-1 flex-col items-center justify-center gap-2 p-[22px] text-center">
-              <span className="text-sm font-medium">
-                {NAV.find((n) => n.id === tab)?.label}
-              </span>
-              <span className="text-[13px] text-muted">
-                Preview — content fixture pending.
-              </span>
-            </div>
+            <UsageSettings />
           )}
         </div>
+      </div>
+    </div>
+  );
+}
+
+function GeneralTab({
+  theme,
+  network,
+  account,
+  onSetTheme,
+  onManageAccount,
+}: {
+  theme: Theme;
+  network: string;
+  account: AccountOverview;
+  onSetTheme: (t: Theme) => void;
+  onManageAccount: () => void;
+}) {
+  return (
+    <div className="flex flex-col gap-[18px] p-[22px]">
+      {/* Identity (from img-2 › Account › Identity) */}
+      <div className="overflow-hidden rounded-[var(--radius-md)] border border-border bg-background/40">
+        <div className="flex items-start justify-between gap-4 p-4">
+          <div className="flex items-center gap-3">
+            <div className="flex h-11 w-11 items-center justify-center rounded-full bg-surface-2 text-muted">
+              <User size={20} />
+            </div>
+            <div className="flex flex-col gap-1">
+              <div className="flex items-center gap-2">
+                <span className="font-mono text-sm font-medium">{account.address}</span>
+                <Badge>{account.authType}</Badge>
+              </div>
+              <span className="text-[13px] text-muted">
+                Primary identity · {account.primary}
+              </span>
+            </div>
+          </div>
+          <button
+            onClick={onManageAccount}
+            className="flex-shrink-0 rounded-full bg-fg px-4 py-2 text-[13px] font-medium text-background transition-opacity hover:opacity-90"
+          >
+            Manage account
+          </button>
+        </div>
+        <div className="grid grid-cols-2 gap-px border-t border-border bg-border">
+          <MetaCell icon={<WalletIcon size={14} />} label="Type">
+            <span className="text-[13px]">{account.authType}</span>
+          </MetaCell>
+          <MetaCell icon={<NetworkDot />} label="Network">
+            <span className="text-[13px]">{account.network}</span>
+          </MetaCell>
+        </div>
+      </div>
+
+      <Divider />
+
+      <SettingRow title="Theme" desc="Match system, light, or dark">
+        <div className="flex rounded-full border border-border p-[3px]">
+          {(["dark", "light"] as Theme[]).map((t) => (
+            <button
+              key={t}
+              onClick={() => onSetTheme(t)}
+              className={`rounded-full px-3 py-[5px] text-xs capitalize transition-colors ${
+                theme === t ? "bg-surface-2 font-medium text-fg" : "text-muted"
+              }`}
+            >
+              {t}
+            </button>
+          ))}
+          <button className="rounded-full px-3 py-[5px] text-xs text-muted">
+            System
+          </button>
+        </div>
+      </SettingRow>
+
+      <Divider />
+
+      <SettingRow title="Default network" desc="Used for new chats">
+        <div className="flex items-center gap-[7px] rounded-[var(--radius-sm)] border border-border px-3 py-[7px]">
+          <NetworkDot />
+          <span className="text-[13px]">{network}</span>
+          <ChevronDown size={12} className="text-muted" />
+        </div>
+      </SettingRow>
+
+      <Divider />
+
+      <SettingRow title="Connected wallet" desc={account.address} descMono>
+        <button className="rounded-[var(--radius-sm)] border border-border px-3.5 py-2 text-[13px] font-medium text-muted transition-colors hover:text-fg">
+          Disconnect
+        </button>
+      </SettingRow>
+    </div>
+  );
+}
+
+function Badge({ children }: { children: ReactNode }) {
+  return (
+    <span className="rounded-full border border-border bg-surface-2 px-2 py-0.5 text-[11px] font-medium text-muted">
+      {children}
+    </span>
+  );
+}
+
+function NetworkDot() {
+  return <span className="h-[7px] w-[7px] rounded-full bg-success" />;
+}
+
+function MetaCell({
+  icon,
+  label,
+  children,
+}: {
+  icon: ReactNode;
+  label: string;
+  children: ReactNode;
+}) {
+  return (
+    <div className="flex items-center gap-3 bg-background/40 px-4 py-3">
+      <span className="flex-shrink-0 text-muted">{icon}</span>
+      <div className="flex min-w-0 flex-col gap-0.5">
+        <span className="text-xs text-muted">{label}</span>
+        <div className="min-w-0 truncate text-fg">{children}</div>
       </div>
     </div>
   );

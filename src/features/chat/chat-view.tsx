@@ -10,13 +10,21 @@
 
 import { useState } from "react";
 import type { Overlay, Theme } from "./contracts";
-import { seedAccount, seedThreads, seedTx } from "./fixtures";
+import {
+  seedAccount,
+  seedAccountOverview,
+  seedGrants,
+  seedThreads,
+  seedTx,
+  seedWalletPolicies,
+} from "./fixtures";
 import { Sidebar } from "./components/sidebar";
 import { ChatHeader } from "./components/chat-header";
 import { EmptyState } from "./components/empty-state";
 import { Conversation } from "./components/conversation";
 import { WalletModal } from "./components/wallet-modal";
 import { SettingsModal } from "./components/settings-modal";
+import { AppsModal } from "./components/apps-modal";
 
 const SWAP_THREAD_ID = "t-swap";
 
@@ -48,6 +56,7 @@ export function ChatMockView() {
             network={seedAccount.network ?? "Ethereum"}
             theme={theme}
             onToggleTheme={() => setTheme((t) => (t === "dark" ? "light" : "dark"))}
+            onOpenApps={() => setOverlay("apps")}
             onOpenSettings={() => setOverlay("settings")}
           />
 
@@ -71,12 +80,15 @@ export function ChatMockView() {
           {overlay === "settings" && (
             <SettingsModal
               theme={theme}
-              address={seedAccount.address ?? ""}
               network={seedAccount.network ?? "Ethereum"}
+              account={seedAccountOverview}
+              wallets={seedWalletPolicies}
+              grants={seedGrants}
               onSetTheme={setTheme}
               onClose={() => setOverlay("none")}
             />
           )}
+          {overlay === "apps" && <AppsModal onClose={() => setOverlay("none")} />}
         </main>
       </div>
     </div>

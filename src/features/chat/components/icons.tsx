@@ -52,6 +52,36 @@ export const PanelLeft = (p: IconProps) => (
   </svg>
 );
 
+export const AppsIcon = (p: IconProps) => (
+  <svg {...base(p)} strokeWidth={2.15}>
+    <path d="M18.5 18.5A9 9 0 1 1 21 12" />
+    <path d="m10.3 8.2 5.5 5.5-2.4 2.4a3.1 3.1 0 0 1-4.4-4.4l1.3-1.3" />
+    <path d="m12.2 9.8 2.7-2.7M9.7 7.3 8.2 5.8M7.2 9.8 5.7 8.3" />
+    <path d="M15.8 13.7c1.7 1.7 4.4 1.7 5.9.2" />
+  </svg>
+);
+
+export const Search = (p: IconProps) => (
+  <svg {...base(p)}>
+    <circle cx="11" cy="11" r="7" />
+    <path d="m20 20-4-4" />
+  </svg>
+);
+
+export const Filter = (p: IconProps) => (
+  <svg {...base(p)}>
+    <path d="M4 6h16M7 12h10M10 18h4" />
+  </svg>
+);
+
+export const MoreHorizontal = (p: IconProps) => (
+  <svg {...base(p)} strokeWidth={2.2}>
+    <circle cx="5" cy="12" r=".5" fill="currentColor" />
+    <circle cx="12" cy="12" r=".5" fill="currentColor" />
+    <circle cx="19" cy="12" r=".5" fill="currentColor" />
+  </svg>
+);
+
 export const Gear = (p: IconProps) => (
   <svg {...base(p)} strokeWidth={1.7}>
     <circle cx="12" cy="12" r="3" />
@@ -74,6 +104,18 @@ export const ArrowUp = (p: IconProps) => (
 export const ArrowRight = (p: IconProps) => (
   <svg {...base(p)}>
     <path d="M4 12h16M14 6l6 6-6 6" />
+  </svg>
+);
+
+export const ArrowLeft = (p: IconProps) => (
+  <svg {...base(p)}>
+    <path d="M20 12H4M10 6l-6 6 6 6" />
+  </svg>
+);
+
+export const ExternalLink = (p: IconProps) => (
+  <svg {...base(p)} strokeWidth={2}>
+    <path d="M7 17L17 7M8 7h9v9" />
   </svg>
 );
 
@@ -184,5 +226,39 @@ export const Sliders = (p: IconProps) => (
   <svg {...base(p)} strokeWidth={1.7}>
     <circle cx="12" cy="12" r="3" />
     <path d="M12 2v3M12 19v3M2 12h3M19 12h3" />
+  </svg>
+);
+
+export const User = (p: IconProps) => (
+  <svg {...base(p)} strokeWidth={1.7}>
+    <circle cx="12" cy="8" r="4" />
+    <path d="M4 20a8 8 0 0 1 16 0" />
+  </svg>
+);
+
+export const Star = (p: IconProps) => (
+  <svg {...base(p)} strokeWidth={1.6}>
+    <path d="M12 3l2.6 5.6 6 .8-4.4 4.2 1.1 6L12 17.8 6.7 19.6l1.1-6L3.4 9.4l6-.8z" />
+  </svg>
+);
+
+export const Alert = (p: IconProps) => (
+  <svg {...base(p)} strokeWidth={1.7}>
+    <path d="M12 3L2 20h20L12 3z" />
+    <path d="M12 10v4M12 17h.01" />
+  </svg>
+);
+
+export const Bolt = (p: IconProps) => (
+  <svg {...base(p)} strokeWidth={1.6}>
+    <path d="M13 2L4 14h6l-1 8 9-12h-6z" />
+  </svg>
+);
+
+export const Help = (p: IconProps) => (
+  <svg {...base(p)} strokeWidth={1.7}>
+    <circle cx="12" cy="12" r="10" />
+    <path d="M9.1 9a3 3 0 0 1 5.8 1c0 2-3 3-3 3" />
+    <path d="M12 17h.01" />
   </svg>
 );

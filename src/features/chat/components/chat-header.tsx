@@ -1,13 +1,14 @@
 "use client";
 
 import type { Theme } from "../contracts";
-import { ChevronDown, Gear, Moon, Sun } from "./icons";
+import { AppsIcon, ChevronDown, Gear, Moon, Sun } from "./icons";
 
 interface ChatHeaderProps {
   title: string;
   network: string;
   theme: Theme;
   onToggleTheme: () => void;
+  onOpenApps: () => void;
   onOpenSettings: () => void;
 }
 
@@ -16,6 +17,7 @@ export function ChatHeader({
   network,
   theme,
   onToggleTheme,
+  onOpenApps,
   onOpenSettings,
 }: ChatHeaderProps) {
   return (
@@ -27,6 +29,14 @@ export function ChatHeader({
           <span className="text-[13px] text-muted">{network}</span>
           <ChevronDown size={12} className="text-muted" />
         </div>
+        <button
+          type="button"
+          onClick={onOpenApps}
+          className="flex h-9 w-9 items-center justify-center rounded-[var(--radius-sm)] text-fg transition-colors hover:bg-surface-2"
+          aria-label="Apps"
+        >
+          <AppsIcon size={23} />
+        </button>
         <button
           onClick={onToggleTheme}
           className="flex h-8 w-8 items-center justify-center rounded-[var(--radius-sm)] text-muted transition-colors hover:bg-surface-2 hover:text-fg"

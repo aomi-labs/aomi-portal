@@ -17,6 +17,7 @@
   --accent-strong: #fa5111;
   --info: #2f6feb;
   --success: #3fb950;
+  --danger: #e5484d;
   --on-accent: #0a0a0a;
 }
 
@@ -40,6 +41,7 @@
   --color-accent-strong: var(--accent-strong);
   --color-info: var(--info);
   --color-success: var(--success);
+  --color-danger: var(--danger);
   --color-on-accent: var(--on-accent);
 
   --font-sans: var(--font-geist-sans);
