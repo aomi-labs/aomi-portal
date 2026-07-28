@@ -1,39 +1,73 @@
 @import "tailwindcss";
+@import "./design-tokens.css";
+
+/* Scan DS components so Button variant classes (bg-[var(--aomi-primary)], etc.) emit CSS */
+@source "../../node_modules/@aomi-labs/design/dist/**/*.js";
 
 /*
- * Aomi chat mock — theme tokens (Vibe-derived).
- * Light values in :root, dark values under .dark — one class flips the app.
- * Mirrors the Paper design tokens in ../../../CHAT-ARCHITECTURE.md.
+ * Mode B — brand + live portal alignment.
+ * Ink CTAs · sky interactive accent · cool zinc · monochrome chat surfaces.
+ * See THEME-RECONCILIATION.md.
  */
 
 :root {
-  --background: #ffffff;
-  --surface: #f6f6f4;
-  --surface-2: #ecece8;
-  --border: #e6e6e3;
-  --fg: #171717;
-  --muted: #6b6b6b;
-  --accent: #ff6a00;
-  --accent-strong: #fa5111;
-  --info: #2f6feb;
-  --success: #3fb950;
-  --on-accent: #0a0a0a;
+  --background: var(--aomi-chat-bg);
+  --surface: var(--aomi-bg-subtle);
+  --surface-2: var(--aomi-chat-bubble-user);
+  --elevated: var(--aomi-chat-composer-bg);
+  --border: var(--aomi-border);
+  --border-strong: var(--aomi-border-strong);
+  --fg: var(--aomi-text);
+  --muted: var(--aomi-text-muted);
+  /* Sky — links, selection, spinners, secondary emphasis */
+  --accent: var(--aomi-accent-interactive);
+  --accent-strong: var(--aomi-accent-active);
+  --on-accent: var(--aomi-accent-selected-text);
+  /* Ink / inverted ink — primary CTAs (Send, Approve, Add wallet) */
+  --primary: var(--aomi-primary);
+  --primary-hover: var(--aomi-primary-hover);
+  --primary-foreground: var(--aomi-text-on-brand);
+  --info: var(--aomi-accent-interactive);
+  --success: var(--aomi-success-500);
 }
 
-.dark {
-  --background: #0a0a0a;
-  --surface: #161616;
-  --surface-2: #1f1f1f;
-  --border: #2a2a2a;
-  --fg: #ededed;
-  --muted: #8a8a8a;
+.dark,
+[data-theme="dark"] {
+  --background: var(--aomi-chat-bg);
+  --surface: var(--aomi-bg-subtle);
+  --surface-2: var(--aomi-chat-bubble-user);
+  --elevated: var(--aomi-chat-composer-bg);
+  --border: var(--aomi-border);
+  --border-strong: var(--aomi-border-strong);
+  --fg: var(--aomi-text);
+  --muted: var(--aomi-text-muted);
+  --accent: var(--aomi-accent-interactive);
+  --accent-strong: var(--aomi-accent-active);
+  --on-accent: var(--aomi-accent-selected-text);
+  --primary: var(--aomi-primary);
+  --primary-hover: var(--aomi-primary-hover);
+  --primary-foreground: var(--aomi-text-on-brand);
+  --info: var(--aomi-accent-interactive);
+  --success: var(--aomi-success-500);
+}
+
+/* Brand marks that switch fill between light/dark (see brand-mark.tsx). */
+.brand-mark-themed {
+  color: var(--brand-mark-light);
+}
+
+.dark .brand-mark-themed,
+[data-theme="dark"] .brand-mark-themed {
+  color: var(--brand-mark-dark);
 }
 
 @theme inline {
   --color-background: var(--background);
   --color-surface: var(--surface);
   --color-surface-2: var(--surface-2);
+  --color-elevated: var(--elevated);
   --color-border: var(--border);
+  --color-border-strong: var(--border-strong);
   --color-fg: var(--fg);
   --color-muted: var(--muted);
   --color-accent: var(--accent);
@@ -41,13 +75,24 @@
   --color-info: var(--info);
   --color-success: var(--success);
   --color-on-accent: var(--on-accent);
+  --color-primary: var(--primary);
+  --color-primary-hover: var(--primary-hover);
+  --color-primary-foreground: var(--primary-foreground);
 
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
+  --font-sans: var(--aomi-font-sans), var(--font-geist-sans), system-ui, sans-serif;
+  --font-mono: var(--aomi-font-mono), var(--font-geist-mono), ui-monospace, monospace;
 
-  --radius-sm: 8px;
-  --radius-md: 12px;
-  --radius-lg: 16px;
+  --radius-sm: var(--aomi-radius-sm);
+  --radius-md: var(--aomi-radius-md);
+  --radius-lg: var(--aomi-radius-lg);
+  --radius-xl: var(--aomi-radius-xl);
+  --radius-2xl: var(--aomi-radius-2xl);
+  --radius-composer: var(--aomi-radius-composer);
+  --radius-pill: var(--aomi-radius-pill);
+
+  /* DS Button motion tokens */
+  --duration-base: var(--aomi-duration-base);
+  --ease-standard: var(--aomi-ease-standard);
 }
 
 html,
@@ -59,4 +104,90 @@ body {
   background: var(--background);
   color: var(--fg);
   font-family: var(--font-sans), system-ui, sans-serif;
+}
+
+/* Fallback — ensures ink/danger fills even if DS scan misses a class */
+@layer utilities {
+  .bg-primary {
+    background-color: var(--primary);
+  }
+  .hover\:bg-primary-hover:hover {
+    background-color: var(--primary-hover);
+  }
+  .text-primary-foreground {
+    color: var(--primary-foreground);
+  }
+  .bg-danger {
+    background-color: var(--aomi-danger-500);
+  }
+}
+
+/* Working trace — portal-aligned shimmer + scroll fades */
+@keyframes aui-working-sweep {
+  0% {
+    background-position: 200% center;
+  }
+  100% {
+    background-position: -200% center;
+  }
+}
+
+.aui-working-shimmer {
+  background: linear-gradient(
+    90deg,
+    var(--muted) 0%,
+    var(--fg) 45%,
+    var(--muted) 90%
+  );
+  background-size: 200% auto;
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+  animation: aui-working-sweep 2s linear infinite;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .aui-working-shimmer {
+    animation: none;
+    color: var(--muted);
+    -webkit-text-fill-color: var(--muted);
+    background: none;
+  }
+}
+
+.aui-working-trace-scroll {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
+
+.aui-working-trace-scroll::-webkit-scrollbar {
+  display: none;
+  width: 0;
+  height: 0;
+}
+
+.aui-working-trace-edge-fade-top {
+  background: linear-gradient(
+    to bottom,
+    var(--background) 0%,
+    color-mix(in oklch, var(--background) 92%, transparent) 14%,
+    color-mix(in oklch, var(--background) 76%, transparent) 32%,
+    color-mix(in oklch, var(--background) 54%, transparent) 52%,
+    color-mix(in oklch, var(--background) 31%, transparent) 70%,
+    color-mix(in oklch, var(--background) 13%, transparent) 86%,
+    transparent 100%
+  );
+}
+
+.aui-working-trace-edge-fade-bottom {
+  background: linear-gradient(
+    to top,
+    var(--background) 0%,
+    color-mix(in oklch, var(--background) 92%, transparent) 14%,
+    color-mix(in oklch, var(--background) 76%, transparent) 32%,
+    color-mix(in oklch, var(--background) 54%, transparent) 52%,
+    color-mix(in oklch, var(--background) 31%, transparent) 70%,
+    color-mix(in oklch, var(--background) 13%, transparent) 86%,
+    transparent 100%
+  );
 }
