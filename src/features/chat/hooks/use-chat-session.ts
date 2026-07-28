@@ -8,7 +8,9 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import type {
   AccountBillingSnapshot,
+  AccountOverview,
   ChatSnapshot,
+  DelegationGrant,
   Overlay,
   PaymentMethodsFixture,
   Popover,
@@ -19,6 +21,7 @@ import type {
   ToolStep,
   TxPreview,
   UsageOverview,
+  WalletPolicy,
 } from "../contracts";
 import {
   paymentGate,
@@ -30,7 +33,10 @@ import {
   models,
   networks,
   seedAccount,
+  seedAccountOverview,
+  seedGrants,
   seedThreads,
+  seedWalletPolicies,
   seedWallets,
   secretGate,
   threadFixtureForPrompt,
@@ -92,6 +98,9 @@ export interface ChatSessionApi {
   billing: AccountBillingSnapshot;
   usageOverview: UsageOverview;
   paymentMethods: PaymentMethodsFixture;
+  accountOverview: AccountOverview;
+  walletPolicies: WalletPolicy[];
+  grants: DelegationGrant[];
   dismissToast: () => void;
   runCommand: (
     action:
@@ -740,6 +749,9 @@ export function useChatSession(): ChatSessionApi {
     billing: account.billing ?? seedAccount.billing!,
     usageOverview,
     paymentMethods,
+    accountOverview: seedAccountOverview,
+    walletPolicies: seedWalletPolicies,
+    grants: seedGrants,
     dismissToast: () => setToast(null),
     runCommand,
     popoverAnchor,

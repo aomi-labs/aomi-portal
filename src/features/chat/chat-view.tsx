@@ -11,6 +11,7 @@ import { Sidebar } from "./components/sidebar";
 import { ChatHeader } from "./components/chat-header";
 import { EmptyState } from "./components/empty-state";
 import { Conversation } from "./components/conversation";
+import { AppsModal } from "./components/apps-modal";
 import { SettingsModal } from "./components/settings-modal";
 import { CatalogPopover } from "./components/composer";
 import { NetworkMark, ModelMark } from "./components/brands";
@@ -185,6 +186,7 @@ export function ChatMockView() {
               session.setTheme(resolvedTheme === "dark" ? "light" : "dark")
             }
             onOpenSettings={() => session.openOverlay("settings", "general")}
+            onOpenApps={() => session.openOverlay("apps")}
             onOpenNetwork={() => session.openPopover("network", "header")}
             onOpenMobileNav={session.openMobileNav}
             onNewChat={session.newChat}
@@ -261,12 +263,18 @@ export function ChatMockView() {
               onUnlink={session.unlinkWallet}
             />
           )}
+          {s.overlay === "apps" && (
+            <AppsModal onClose={session.closeOverlay} />
+          )}
           {s.overlay === "settings" && s.settingsTab && (
             <SettingsModal
               theme={resolvedTheme}
               tab={s.settingsTab}
               address={s.account.address ?? ""}
               network={networkLabel}
+              account={session.accountOverview}
+              wallets={session.walletPolicies}
+              grants={session.grants}
               billing={session.billing}
               usage={session.usageOverview}
               paymentMethods={session.paymentMethods}
@@ -285,7 +293,7 @@ export function ChatMockView() {
                 session.openPopover("app");
               }}
               onConnectWallet={session.simulateConnectWalletPay}
-              onOpenByok={() => session.openOverlay("settings", "byok")}
+              onOpenByok={() => session.openOverlay("settings", "secrets")}
               onOpenUsage={() => session.openOverlay("settings", "usage")}
               onClose={session.closeOverlay}
             />
