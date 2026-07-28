@@ -6,10 +6,13 @@
 import type { ComponentType, SVGProps } from "react";
 import {
   AdjustmentsHorizontalIcon,
+  ArrowLeftIcon,
   ArrowPathIcon,
   ArrowRightIcon,
   ArrowRightStartOnRectangleIcon,
+  ArrowTopRightOnSquareIcon,
   ArrowsRightLeftIcon,
+  BoltIcon,
   ChartBarSquareIcon,
   ChartPieIcon,
   ChevronDownIcon,
@@ -19,8 +22,11 @@ import {
   CpuChipIcon,
   CubeIcon,
   DocumentTextIcon,
+  EllipsisHorizontalIcon,
   EllipsisVerticalIcon,
+  ExclamationTriangleIcon,
   FolderPlusIcon,
+  FunnelIcon,
   HandThumbUpIcon,
   KeyIcon,
   LockClosedIcon,
@@ -29,12 +35,15 @@ import {
   NoSymbolIcon,
   PencilSquareIcon,
   PlusIcon,
+  QuestionMarkCircleIcon,
   ShareIcon,
   ShieldCheckIcon,
   Square2StackIcon,
   Squares2X2Icon,
+  StarIcon,
   SunIcon,
   TrashIcon,
+  UserIcon,
   ViewColumnsIcon,
   Bars3Icon,
   WalletIcon as HeroWalletIcon,
@@ -108,3 +117,12 @@ export const Pencil = icon(PencilSquareIcon, 16);
 export const FolderPlus = icon(FolderPlusIcon, 16);
 export const StopCircle = icon(NoSymbolIcon, 16);
 export const Trash = icon(TrashIcon, 16);
+export const Alert = icon(ExclamationTriangleIcon);
+export const ArrowLeft = icon(ArrowLeftIcon);
+export const Bolt = icon(BoltIcon);
+export const ExternalLink = icon(ArrowTopRightOnSquareIcon);
+export const Filter = icon(FunnelIcon);
+export const Help = icon(QuestionMarkCircleIcon);
+export const MoreHorizontal = icon(EllipsisHorizontalIcon);
+export const Star = icon(StarIcon);
+export const User = icon(UserIcon);

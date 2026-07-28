@@ -2,14 +2,23 @@
 
 import { Button } from "@aomi-labs/design";
 import { useState, type ComponentType } from "react";
-import type { AccountBillingSnapshot, PaymentMethodsFixture, SettingsTab, Theme, UsageOverview } from "../contracts";
+import type {
+  AccountBillingSnapshot,
+  AccountOverview,
+  DelegationGrant,
+  PaymentMethodsFixture,
+  SettingsTab,
+  Theme,
+  UsageOverview,
+  WalletPolicy,
+} from "../contracts";
 import {
   formatCompactTokens,
-  formatUsagePeriod,
   seedPaymentMethods,
-  seedUsageOverview,
   tierLabel,
 } from "../billing-fixtures";
+import { AccountSettings } from "./account-settings";
+import { UsageSettings } from "./usage-settings";
 import {
   Bot,
   Chart,
@@ -17,8 +26,8 @@ import {
   Close,
   Key,
   Lock,
-  Shield,
   Sliders,
+  WalletIcon,
 } from "./icons";
 import { NetworkMark } from "./brands";
 import { networks } from "../fixtures";
@@ -29,11 +38,11 @@ const NAV: {
   Icon: ComponentType<{ size?: number; className?: string }>;
 }[] = [
   { id: "general", label: "General", Icon: Sliders },
+  { id: "account", label: "Account", Icon: WalletIcon },
   { id: "usage", label: "Usage", Icon: Chart },
   { id: "appKeys", label: "App Keys", Icon: Key },
   { id: "bots", label: "Bots", Icon: Bot },
   { id: "secrets", label: "Secrets", Icon: Lock },
-  { id: "byok", label: "BYOK", Icon: Shield },
 ];
 
 interface SettingsModalProps {
@@ -41,6 +50,9 @@ interface SettingsModalProps {
   tab: SettingsTab;
   address: string;
   network: string;
+  account: AccountOverview;
+  wallets: WalletPolicy[];
+  grants: DelegationGrant[];
   billing: AccountBillingSnapshot;
   usage: UsageOverview;
   paymentMethods?: PaymentMethodsFixture;
@@ -55,6 +67,9 @@ export function SettingsModal({
   tab,
   address,
   network,
+  account,
+  wallets,
+  grants,
   billing,
   usage,
   paymentMethods = seedPaymentMethods,
@@ -165,8 +180,22 @@ export function SettingsModal({
             {tab === "general" && (
               <div className="flex flex-col">
                 <SettingRow
+                  title={account.primary}
+                  desc={`${account.authType} · ${account.address}`}
+                  descMono
+                >
+                  <button
+                    type="button"
+                    onClick={() => onSetTab("account")}
+                    className="flex h-8 shrink-0 items-center rounded-[var(--radius-sm)] border border-border px-3 text-[13px] font-medium leading-none text-muted transition-colors hover:text-fg"
+                  >
+                    Manage account
+                  </button>
+                </SettingRow>
+                <Divider />
+                <SettingRow
                   title="Plan"
-                  desc={`${planLabel} · member since ${billing.member_since ?? "—"}`}
+                  desc={`${tierLabel(account.tier)} · member since ${account.createdAt}`}
                 >
                   <span className="text-[13px] font-medium text-accent">
                     {billing.credit_used.toLocaleString()} /{" "}
@@ -184,8 +213,7 @@ export function SettingsModal({
                 </SettingRow>
                 <Divider />
                 <p className="py-2 text-[12px] leading-snug text-muted">
-                  Usage shows spend by app. Payment setup (wallet pay and your own model keys) lives
-                  under BYOK. Partner app fees may apply separately — not shown here yet.
+                  Usage shows spend by app. Overflow settles via wallet pay when allowance is used.
                 </p>
                 <Divider />
                 <SettingRow title="Theme" desc="Match system, light, or dark">
@@ -228,60 +256,16 @@ export function SettingsModal({
               </div>
             )}
 
-            {tab === "usage" && (
-              <div className="flex flex-col gap-4">
-                <div className="flex items-end justify-between gap-3">
-                  <div>
-                    <div className="text-sm font-medium">Spend meter</div>
-                    <div className="mt-1 text-[12px] text-muted">
-                      {formatUsagePeriod(usage.period_utc_from, usage.period_utc_to)}
-                    </div>
-                  </div>
-                  <button
-                    type="button"
-                    onClick={() => onSetTab("byok")}
-                    className="shrink-0 rounded-pill border border-border px-3 py-1 text-[12px] text-muted transition-colors hover:text-fg"
-                  >
-                    Payment setup
-                  </button>
-                </div>
-                <div className="grid grid-cols-3 gap-3">
-                  <Stat
-                    label="Credits used"
-                    value={usage.overall.credit_used.toLocaleString()}
-                  />
-                  <Stat label="Tokens" value={formatCompactTokens(totalTokens)} />
-                  <Stat label="Remaining" value={remaining.toLocaleString()} accent />
-                </div>
-                <p className="text-[12px] leading-snug text-muted">
-                  This is your usage meter — not invoices or wallet balance. When quota runs out,
-                  chat asks for wallet pay or your own model key.
-                </p>
-                <div className="overflow-hidden rounded-[var(--radius-md)] border border-border">
-                  <div className="grid grid-cols-4 gap-2 border-b border-border px-3 py-2 text-[11px] uppercase tracking-wide text-muted">
-                    <span>App</span>
-                    <span>Credits</span>
-                    <span>Tokens</span>
-                    <span>Share</span>
-                  </div>
-                  {usage.apps.map((row) => (
-                    <div
-                      key={row.app}
-                      className="grid grid-cols-4 gap-2 border-b border-border px-3 py-2.5 text-[13px] last:border-0"
-                    >
-                      <span className="truncate font-mono">{row.app}</span>
-                      <span>{row.credits_used.toLocaleString()}</span>
-                      <span>
-                        {formatCompactTokens(row.input_tokens + row.output_tokens)}
-                      </span>
-                      <span className={row.share_pct >= 50 ? "text-accent" : ""}>
-                        {row.share_pct}%
-                      </span>
-                    </div>
-                  ))}
-                </div>
-              </div>
+            {tab === "account" && (
+              <AccountSettings
+                accountId={account.userId}
+                email={account.verifiedEmail}
+                wallets={wallets}
+                grants={grants}
+              />
             )}
+
+            {tab === "usage" && <UsageSettings />}
 
             {tab === "appKeys" && (
               <div className="flex flex-col">
@@ -332,57 +316,6 @@ export function SettingsModal({
               </div>
             )}
 
-            {tab === "byok" && (
-              <div className="flex flex-col">
-                <SettingRow
-                  title="Free quota"
-                  desc={`${billing.credit_used.toLocaleString()} of ${billing.credit_paid.toLocaleString()} credits used this month`}
-                >
-                  <span
-                    className={`text-[12px] font-medium ${
-                      paymentMethods.quota.status === "exhausted"
-                        ? "text-[#E5484D]"
-                        : "text-accent"
-                    }`}
-                  >
-                    {paymentMethods.quota.remaining.toLocaleString()} left
-                  </span>
-                </SettingRow>
-                <Divider />
-                <SettingRow
-                  title="Wallet pay"
-                  desc="Pay per turn when quota runs out · connects in your wallet"
-                >
-                  <span className="text-[12px] font-medium text-muted">
-                    {paymentMethods.wallet_pay.status === "ready" ? "Connected" : "Not connected"}
-                  </span>
-                </SettingRow>
-                <Divider />
-                {paymentMethods.own_api_keys.map((key) => (
-                  <div key={key.provider}>
-                    <SettingRow
-                      title={`${key.provider} key`}
-                      desc={`${key.key_prefix} · ${key.active ? "active" : "inactive"}`}
-                      descMono
-                    >
-                      <GhostBtn>Replace</GhostBtn>
-                    </SettingRow>
-                    <Divider />
-                  </div>
-                ))}
-                <SettingRow
-                  title="Use your own model key"
-                  desc="When credits run low, chat can bill your provider directly. Simulation only."
-                >
-                  <PrimaryBtn>Add key</PrimaryBtn>
-                </SettingRow>
-                <Divider />
-                <p className="py-2 text-[12px] leading-snug text-muted">
-                  Payment setup lives on Chat — not on Build. No invoices or dollar balances here
-                  until backend APIs expose them.
-                </p>
-              </div>
-            )}
           </div>
         </div>
       </div>
