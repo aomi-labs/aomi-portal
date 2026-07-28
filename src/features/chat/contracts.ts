@@ -198,8 +198,7 @@ export type SettingsTab =
   | "usage"
   | "appKeys"
   | "bots"
-  | "secrets"
-  | "byok";
+  | "secrets";
 
 export interface Toast {
   id: string;

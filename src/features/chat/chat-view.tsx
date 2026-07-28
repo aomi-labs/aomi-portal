@@ -293,7 +293,7 @@ export function ChatMockView() {
                 session.openPopover("app");
               }}
               onConnectWallet={session.simulateConnectWalletPay}
-              onOpenByok={() => session.openOverlay("settings", "secrets")}
+              onUseOwnKey={() => session.openOverlay("settings", "secrets")}
               onOpenUsage={() => session.openOverlay("settings", "usage")}
               onClose={session.closeOverlay}
             />

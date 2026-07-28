@@ -30,7 +30,7 @@ export function GateModal({
   onOpenSecrets,
   onSwitchApp,
   onConnectWallet,
-  onOpenByok,
+  onUseOwnKey,
   onOpenUsage,
   onClose,
 }: {
@@ -38,7 +38,7 @@ export function GateModal({
   onOpenSecrets: () => void;
   onSwitchApp: () => void;
   onConnectWallet?: () => void;
-  onOpenByok?: () => void;
+  onUseOwnKey?: () => void;
   onOpenUsage?: () => void;
   onClose: () => void;
 }) {
@@ -88,7 +88,7 @@ export function GateModal({
                   variant="outline"
                   size="md"
                   shape="pill"
-                  onClick={onOpenByok}
+                  onClick={onUseOwnKey}
                   className="h-10 flex-1 text-sm font-medium"
                 >
                   Use own model key
