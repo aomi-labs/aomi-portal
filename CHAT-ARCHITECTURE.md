@@ -2,7 +2,7 @@
 
 > **Purpose:** Reference for a separate clickable-mock redesign repo (like Aomi Build).  
 > **Not included:** Visual redesign, fonts, colors, or invented UI craft.  
-> **Design reference:** Still pending from Cecilia / product. Do not invent a look without it.  
+> **Design reference:** Still pending from product. Do not invent a look without it.  
 > **Last updated:** 2026-07-18
 
 Related live code lives mainly in:
@@ -114,7 +114,7 @@ Backend wallet request → ClientSession → RuntimeTxHandler → external walle
 
 ## 5. Checklist — before you design
 
-- [ ] Cecilia product direction confirmed (separate mock repo, like Build)
+- [ ] Product direction confirmed (separate mock repo, like Build)
 - [ ] **Design reference received** (sketch / Figma / screenshots) — do not invent look without it
 - [ ] Repo name agreed (`aomi-labs/aomi-chat-design`)
 - [ ] Stack agreed (Next.js 16 + React 19 + Tailwind 4)
@@ -130,7 +130,7 @@ Backend wallet request → ClientSession → RuntimeTxHandler → external walle
 - [ ] `use-chat-session` timer driver with honest **Simulation** labels
 - [ ] Versioned localStorage for UI prefs only — never real keys/cookies/message bodies
 - [ ] One shell/runtime tree — settings must not remount a second provider
-- [ ] Click-through script for Cecilia review gate
+- [ ] Click-through script for product review gate
 
 ## 7. Checklist — core journey coverage
 
