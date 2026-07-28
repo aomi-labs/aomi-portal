@@ -4,25 +4,159 @@
 
 import type {
   Account,
+  AccountOverview,
   CatalogItem,
+  DelegationGrant,
   Gate,
   LinkedWallet,
   Thread,
   ToolStep,
   TxPreview,
   WalletOption,
+  WalletPolicy,
 } from "./contracts";
 import { creditsRemaining, seedBilling } from "./billing-fixtures";
+import { usageFixture } from "./usage-fixture";
+
+const fixtureMonth = usageFixture.months[0]!;
+
+function fixtureTokenTotals() {
+  let inputTokens = 0;
+  let outputTokens = 0;
+  for (const app of fixtureMonth.apps) {
+    for (const row of app.model.byModel) {
+      inputTokens += row.inputTokens;
+      outputTokens += row.outputTokens;
+    }
+  }
+  return { inputTokens, outputTokens };
+}
+
+const fixtureTokens = fixtureTokenTotals();
 
 export const seedAccount: Account = {
   connected: true,
-  address: "0x7a1f…4e9c",
-  ens: "gordian.eth",
-  network: "Ethereum",
+  address: usageFixture.account.address,
+  ens: usageFixture.account.handle,
+  network: usageFixture.account.network,
   credits: creditsRemaining(seedBilling),
-  creditCap: seedBilling.credit_paid,
+  creditCap: fixtureMonth.payment.allowanceCredits.included,
   billing: seedBilling,
+  email: usageFixture.account.verifiedEmail,
 };
+
+export const seedAccountOverview: AccountOverview = {
+  userId: usageFixture.account.userId,
+  authType: usageFixture.account.authType,
+  primary: usageFixture.account.handle,
+  address: usageFixture.account.address,
+  network: usageFixture.account.network,
+  tier: usageFixture.account.tier,
+  status: usageFixture.account.status,
+  verifiedEmail: usageFixture.account.verifiedEmail,
+  createdAt: usageFixture.account.createdAt,
+  lastSeenAt: usageFixture.account.lastSeenAt,
+  usage: {
+    periodLabel: fixtureMonth.period.periodLabel,
+    creditsUsed: fixtureMonth.payment.allowanceCredits.used,
+    creditsIncluded: fixtureMonth.payment.allowanceCredits.included,
+    inputTokens: fixtureTokens.inputTokens,
+    outputTokens: fixtureTokens.outputTokens,
+  },
+};
+
+export const seedWalletPolicies: WalletPolicy[] = [
+  {
+    id: "w-siwe",
+    chain: "evm",
+    address: "0x71C7…3E2a",
+    linkedVia: "siwe",
+    rdns: "io.metamask",
+    primary: true,
+    desiredMode: "agent_sync",
+    authVersion: 2,
+    lastPermit: "you · Jul 12",
+  },
+  {
+    id: "w-siws",
+    chain: "svm",
+    address: "9xQm…4kZ7",
+    linkedVia: "siws",
+    rdns: "app.phantom",
+    desiredMode: "human_sync",
+    authVersion: 1,
+    lastPermit: "you · Jul 9",
+  },
+  {
+    id: "w-privy",
+    chain: "svm",
+    address: "8xKn…9QpS",
+    linkedVia: "privy",
+    desiredMode: "auto",
+    grantActive: true,
+    grantExpiresLabel: "Aug 3, 2026",
+    authVersion: 4,
+    lastPermit: "you · Jul 20",
+  },
+  {
+    id: "w-para",
+    chain: "evm",
+    address: "0x9f2B…A41c",
+    linkedVia: "para",
+    desiredMode: "auto",
+    grantActive: false,
+    grantExpiresLabel: "expired Jul 18",
+    authVersion: 3,
+    lastPermit: "you · Jul 2",
+  },
+  {
+    id: "w-privy-locked",
+    chain: "evm",
+    address: "0x2E9a…B73c",
+    linkedVia: "privy",
+    desiredMode: "denied",
+    authVersion: 2,
+    lastPermit: "you · Jul 15",
+  },
+  {
+    id: "w-para-readonly",
+    chain: "evm",
+    address: "0x8B4d…F19a",
+    linkedVia: "para",
+    readOnly: true,
+    desiredMode: "denied",
+    authVersion: 1,
+    lastPermit: "Jul 8",
+  },
+  {
+    id: "w-readonly",
+    chain: "evm",
+    address: "0x40C3…7A1d",
+    linkedVia: "read_only",
+    desiredMode: "denied",
+    authVersion: 1,
+    lastPermit: "Jul 5",
+  },
+];
+
+export const seedGrants: DelegationGrant[] = [
+  {
+    id: "g-privy",
+    provider: "Privy",
+    scope: "Solana · 8xKn…9QpS",
+    kind: "session delegation",
+    status: "active",
+    expiresLabel: "Aug 3, 2026",
+  },
+  {
+    id: "g-para",
+    provider: "Para",
+    scope: "Ethereum · 0x9f2B…A41c",
+    kind: "session delegation",
+    status: "expired",
+    expiresLabel: "Jul 18, 2026",
+  },
+];
 
 export const seedWallets: LinkedWallet[] = [
   {

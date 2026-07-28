@@ -1,6 +1,6 @@
 /**
- * Billing fixtures — backend-shaped, simulation only.
- * Portal integration: replace imports with API responses; keep these types in contracts.ts.
+ * Billing adapter — maps `user-fixture.json` to legacy portal-shaped exports.
+ * Deprecated shim: delete in S6 when all consumers read `usage-fixture.ts` directly.
  */
 
 import type {
@@ -9,68 +9,67 @@ import type {
   PaymentMethodsFixture,
   UsageOverview,
 } from "./contracts";
+import { usageFixture } from "./usage-fixture";
+
+const month = usageFixture.months[0]!;
+const allowance = month.payment.allowanceCredits;
+
+function tokenTotals() {
+  let input = 0;
+  let output = 0;
+  for (const app of month.apps) {
+    for (const row of app.model.byModel) {
+      input += row.inputTokens;
+      output += row.outputTokens;
+    }
+  }
+  return { input, output };
+}
+
+const tokens = tokenTotals();
 
 export const seedBilling: AccountBillingSnapshot = {
-  tier: "free",
-  period_utc_month: "2026-07",
-  credit_used: 842,
-  credit_paid: 1240,
-  member_since: "Mar 2026",
+  tier: usageFixture.account.tier,
+  period_utc_month: month.period.from.slice(0, 7),
+  credit_used: allowance.used,
+  credit_paid: allowance.included,
+  member_since: usageFixture.account.createdAt,
 };
 
 export const seedUsageOverview: UsageOverview = {
-  period_utc_from: "2026-07-01",
-  period_utc_to: "2026-07-19",
+  period_utc_from: month.period.from,
+  period_utc_to: month.period.to,
   overall: {
-    credit_used: 842,
-    credit_paid: 1240,
-    input_tokens: 1_200_000,
-    output_tokens: 340_000,
+    credit_used: allowance.used,
+    credit_paid: allowance.included,
+    input_tokens: tokens.input,
+    output_tokens: tokens.output,
   },
-  apps: [
-    {
-      app: "Basic Apps",
-      credits_used: 512,
-      input_tokens: 740_000,
-      output_tokens: 210_000,
-      share_pct: 61,
-    },
-    {
-      app: "Hyperliquid",
-      credits_used: 210,
-      input_tokens: 310_000,
-      output_tokens: 90_000,
-      share_pct: 25,
-    },
-    {
-      app: "Polymarket",
-      credits_used: 120,
-      input_tokens: 150_000,
-      output_tokens: 40_000,
-      share_pct: 14,
-    },
-  ],
+  apps: month.byApp.map((row) => ({
+    app: row.app,
+    credits_used: Math.round(row.totalUsd / 0.01),
+    input_tokens: 0,
+    output_tokens: 0,
+    share_pct: Math.round((row.totalUsd / month.summary.totalUsd) * 100),
+  })),
 };
 
 export const seedPaymentMethods: PaymentMethodsFixture = {
   quota: {
-    status: "active",
+    status: allowance.used >= allowance.included ? "exhausted" : "active",
     remaining: creditsRemaining(seedBilling),
-    cap: seedBilling.credit_paid,
+    cap: allowance.included,
   },
-  own_api_keys: [
-    { provider: "OpenAI", key_prefix: "sk-…k9m2", active: true },
-  ],
+  own_api_keys: [{ provider: "OpenAI", key_prefix: "sk-…k9m2", active: true }],
   wallet_pay: {
-    status: "not_connected",
+    status: month.payment.x402SettledUsd > 0 ? "ready" : "not_connected",
   },
 };
 
 export const paymentGate: Gate = {
   kind: "payment",
-  title: "Need a way to pay for this turn",
-  message:
-    "Your free credits for this month are used up. Connect wallet pay, add your own model key, or review usage. Simulation only — no real charge.",
+  title: "Allowance used for this month",
+  message: `Your ${allowance.included} credit allowance is used (${allowance.used}/${allowance.included}). Overflow settles via ${month.payment.settledVia}. Simulation only — no real charge.`,
   paymentActions: ["connect_wallet", "use_own_key", "view_usage"],
 };
 

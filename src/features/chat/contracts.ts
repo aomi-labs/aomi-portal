@@ -61,7 +61,8 @@ export type Overlay =
   | "wallets"
   | "gate"
   | "disconnect"
-  | "deleteThread";
+  | "deleteThread"
+  | "apps";
 
 export type Popover =
   | "none"
@@ -193,6 +194,7 @@ export interface Gate {
 
 export type SettingsTab =
   | "general"
+  | "account"
   | "usage"
   | "appKeys"
   | "bots"
@@ -229,4 +231,223 @@ export interface ChatSnapshot {
   sidebarCollapsed: boolean;
   toast: Toast | null;
   workingElapsedSec: number;
+}
+
+/** Usage rollup for the current billing period. */
+export interface AccountUsage {
+  periodLabel: string;
+  creditsUsed: number;
+  creditsIncluded: number;
+  inputTokens: number;
+  outputTokens: number;
+}
+
+/** Settings › General / Account identity block. */
+export interface AccountOverview {
+  userId: string;
+  authType: string;
+  primary: string;
+  address: string;
+  network: string;
+  tier: string;
+  status: string;
+  verifiedEmail: string;
+  createdAt: string;
+  lastSeenAt: string;
+  usage: AccountUsage;
+}
+
+export type SignerMode = "human_sync" | "agent_sync" | "auto" | "denied";
+
+export type LinkedVia = "siwe" | "siws" | "privy" | "para" | "read_only";
+
+export interface WalletPolicy {
+  id: string;
+  chain: "evm" | "svm";
+  address: string;
+  linkedVia: LinkedVia;
+  rdns?: string;
+  primary?: boolean;
+  readOnly?: boolean;
+  desiredMode: SignerMode;
+  grantActive?: boolean;
+  grantExpiresLabel?: string;
+  authVersion: number;
+  lastPermit?: string;
+}
+
+export interface DelegationGrant {
+  id: string;
+  provider: string;
+  scope: string;
+  kind: string;
+  status: "active" | "expired" | "revoked";
+  expiresLabel: string;
+}
+
+export interface UsageLineRow {
+  label: string;
+  detail?: string;
+  amountUsd: number;
+  free?: boolean;
+}
+
+export interface UsageTxRow {
+  label: string;
+  chain: string;
+  feeUsd: number;
+}
+
+export interface UsageStatement {
+  periodLabel: string;
+  creditsUsed: number;
+  creditsIncluded: number;
+  byokTurns: number;
+  settledVia: string;
+  aiTools: UsageLineRow[];
+  onchain: UsageTxRow[];
+}
+
+export interface UsageAccount {
+  userId: string;
+  handle: string;
+  authType: string;
+  address: string;
+  network: string;
+  tier: string;
+  status: string;
+  byok: boolean;
+  verifiedEmail: string;
+  createdAt: string;
+  lastSeenAt: string;
+}
+
+export interface UsagePeriod {
+  periodLabel: string;
+  from: string;
+  to: string;
+  issued: string;
+}
+
+export interface UsageSummaryTotals {
+  modelUsd: number;
+  toolUsd: number;
+  outcomeUsd: number;
+  computeUsd: number;
+  onchainUsd: number;
+  totalUsd: number;
+  managedMarkupUsd: number;
+}
+
+export interface UsageAllowance {
+  included: number;
+  used: number;
+}
+
+export interface UsagePayment {
+  settledVia: string;
+  allowanceCredits: UsageAllowance;
+  allowanceAppliedUsd: number;
+  x402SettledUsd: number;
+  onchainUsd: number;
+  onchainNote: string;
+}
+
+export type AppModelKey = "managed" | "byok";
+
+export interface AppSettings {
+  modelKey: AppModelKey;
+  appByok: boolean;
+  managedMarkupPct: number;
+  note: string;
+}
+
+export interface AppModelRow {
+  model: string;
+  turns: number;
+  inputTokens: number;
+  outputTokens: number;
+  baseUsd: number;
+  chargedUsd: number;
+  note?: string;
+}
+
+export interface AppModelUsage {
+  baseUsd: number;
+  markupPct: number;
+  markupUsd: number;
+  chargedUsd: number;
+  billed?: boolean;
+  turns: number;
+  byModel: AppModelRow[];
+}
+
+export interface AppToolItem {
+  tool: string;
+  calls: number;
+  unitCredits: number;
+  usd: number;
+}
+
+export interface AppToolUsage {
+  chargedUsd: number;
+  calls: number;
+  items: AppToolItem[];
+}
+
+export interface AppOutcomeItem {
+  date: string;
+  action: string;
+  chain: string;
+  flow: string;
+  bps: number;
+  feeToken: string;
+  usd: number;
+  tx: string;
+}
+
+export interface AppOutcomeUsage {
+  chargedUsd: number;
+  txns: number;
+  items: AppOutcomeItem[];
+}
+
+export interface AppUsageEntry {
+  id: string;
+  name: string;
+  native: boolean;
+  settings: AppSettings;
+  model: AppModelUsage;
+  tool: AppToolUsage | null;
+  outcome: AppOutcomeUsage | null;
+  appTotalUsd: number;
+}
+
+export interface ByAppRow {
+  app: string;
+  modelUsd: number;
+  toolUsd: number | null;
+  outcomeUsd: number | null;
+  totalUsd: number;
+}
+
+export interface UsageColumnTotals {
+  modelUsd: number;
+  toolUsd: number;
+  outcomeUsd: number;
+  totalUsd: number;
+}
+
+export interface MonthlyStatement {
+  period: UsagePeriod;
+  summary: UsageSummaryTotals;
+  payment: UsagePayment;
+  apps: AppUsageEntry[];
+  byApp: ByAppRow[];
+  columnTotals: UsageColumnTotals;
+}
+
+export interface UsageFixtureData {
+  account: UsageAccount;
+  months: MonthlyStatement[];
 }
