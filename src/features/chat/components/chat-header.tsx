@@ -1,7 +1,7 @@
 "use client";
 
 import type { Theme } from "../contracts";
-import { ChevronDown, Gear, Moon, PanelLeft, Plus, Sun } from "./icons";
+import { AppMark, ChevronDown, Gear, Moon, PanelLeft, Plus, Sun } from "./icons";
 import { NetworkMark } from "./brands";
 import { networks } from "../fixtures";
 
@@ -13,6 +13,7 @@ interface ChatHeaderProps {
   mobile?: boolean;
   onToggleTheme: () => void;
   onOpenSettings: () => void;
+  onOpenApps?: () => void;
   onOpenNetwork: () => void;
   onOpenMobileNav?: () => void;
   onNewChat?: () => void;
@@ -25,6 +26,7 @@ export function ChatHeader({
   mobile = false,
   onToggleTheme,
   onOpenSettings,
+  onOpenApps,
   onOpenNetwork,
   onOpenMobileNav,
   onNewChat,
@@ -70,6 +72,17 @@ export function ChatHeader({
           <span className="truncate text-[13px] leading-none text-muted">{network}</span>
           <ChevronDown size={12} className="hidden shrink-0 text-muted sm:block" />
         </button>
+
+        {onOpenApps ? (
+          <button
+            type="button"
+            onClick={onOpenApps}
+            className="hidden h-8 items-center gap-1.5 rounded-full border border-border px-2.5 text-[13px] font-medium leading-none text-muted transition-colors hover:bg-surface-2 hover:text-fg sm:flex"
+          >
+            <AppMark size={14} />
+            Apps
+          </button>
+        ) : null}
 
         <button
           type="button"
