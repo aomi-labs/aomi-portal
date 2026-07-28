@@ -19,24 +19,31 @@ import {
   CpuChipIcon,
   CubeIcon,
   DocumentTextIcon,
+  EllipsisVerticalIcon,
+  FolderPlusIcon,
   HandThumbUpIcon,
   KeyIcon,
   LockClosedIcon,
   MagnifyingGlassIcon,
   MoonIcon,
+  NoSymbolIcon,
+  PencilSquareIcon,
   PlusIcon,
   ShareIcon,
   ShieldCheckIcon,
   Square2StackIcon,
   Squares2X2Icon,
   SunIcon,
+  TrashIcon,
   ViewColumnsIcon,
+  Bars3Icon,
   WalletIcon as HeroWalletIcon,
   XMarkIcon,
 } from "@heroicons/react/24/outline";
 import {
   ArrowUpIcon as ArrowUpSolidIcon,
   CheckCircleIcon,
+  ChevronRightIcon,
 } from "@heroicons/react/20/solid";
 
 export type IconProps = SVGProps<SVGSVGElement> & { size?: number };
@@ -67,7 +74,9 @@ export const Plus = icon(PlusIcon);
 export const ChevronDown = icon(ChevronDownIcon);
 export const ChevronUp = icon(ChevronUpIcon);
 export const ChevronExpand = icon(ChevronUpDownIcon);
+export const ChevronRight = icon(ChevronRightIcon, 14);
 export const PanelLeft = icon(ViewColumnsIcon, 18);
+export const Menu = icon(Bars3Icon, 18);
 export const Gear = icon(Cog6ToothIcon, 18);
 export const Check = icon(CheckCircleIcon, 14);
 export const ArrowUp = icon(ArrowUpSolidIcon);
@@ -94,3 +103,8 @@ export const Search = icon(MagnifyingGlassIcon);
 export const Logout = icon(ArrowRightStartOnRectangleIcon);
 export const Like = icon(HandThumbUpIcon);
 export const Docs = icon(DocumentTextIcon);
+export const MoreVertical = icon(EllipsisVerticalIcon, 16);
+export const Pencil = icon(PencilSquareIcon, 16);
+export const FolderPlus = icon(FolderPlusIcon, 16);
+export const StopCircle = icon(NoSymbolIcon, 16);
+export const Trash = icon(TrashIcon, 16);
