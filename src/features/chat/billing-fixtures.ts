@@ -69,12 +69,18 @@ export const seedPaymentMethods: PaymentMethodsFixture = {
 export const paymentGate: Gate = {
   kind: "payment",
   title: "Allowance used for this month",
-  message: `Your ${allowance.included} credit allowance is used (${allowance.used}/${allowance.included}). Overflow settles via ${month.payment.settledVia}. Simulation only — no real charge.`,
+  message: `Your ${allowance.included} credit allowance is used (${allowance.used}/${allowance.included}). Overflow settles via ${month.payment.settledVia}. Simulation only. No real charge.`,
   paymentActions: ["connect_wallet", "use_own_key", "view_usage"],
 };
 
 export function creditsRemaining(billing: AccountBillingSnapshot): number {
   return Math.max(0, billing.credit_paid - billing.credit_used);
+}
+
+/** Shared allowance line — matches Usage tab and sidebar/menu copy. */
+export function formatAllowanceSummary(used: number, included: number): string {
+  const remaining = Math.max(0, included - used);
+  return `${remaining.toLocaleString()} left · ${used.toLocaleString()}/${included.toLocaleString()} used`;
 }
 
 export function formatCompactTokens(total: number): string {
@@ -92,7 +98,7 @@ export function formatUsagePeriod(from: string, to: string): string {
     const d = new Date(`${iso}T00:00:00Z`);
     return d.toLocaleDateString("en-US", { month: "short", day: "numeric", timeZone: "UTC" });
   };
-  return `UTC · ${fmt(from)} – ${fmt(to)}, ${to.slice(0, 4)}`;
+  return `UTC · ${fmt(from)} - ${fmt(to)}, ${to.slice(0, 4)}`;
 }
 
 export function tierLabel(tier: string): string {

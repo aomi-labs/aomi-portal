@@ -13,24 +13,24 @@ import type {
   WalletPolicy,
 } from "../contracts";
 import {
-  formatCompactTokens,
+  formatAllowanceSummary,
   seedPaymentMethods,
   tierLabel,
 } from "../billing-fixtures";
 import { AccountSettings } from "./account-settings";
+import { reconcile } from "../account-reconcile";
+import { GeneralSettings } from "./general-settings";
 import { UsageSettings } from "./usage-settings";
+import { Divider, SettingRow } from "./settings-rows";
 import {
   Bot,
   Chart,
-  ChevronDown,
   Close,
   Key,
   Lock,
   Sliders,
   WalletIcon,
 } from "./icons";
-import { NetworkMark } from "./brands";
-import { networks } from "../fixtures";
 
 const NAV: {
   id: SettingsTab;
@@ -80,10 +80,14 @@ export function SettingsModal({
 }: SettingsModalProps) {
   const activeLabel = NAV.find((n) => n.id === tab)?.label ?? "Settings";
   const [botOn, setBotOn] = useState(true);
-  const remaining = Math.max(0, billing.credit_paid - billing.credit_used);
-  const totalTokens =
-    usage.overall.input_tokens + usage.overall.output_tokens;
+  const allowanceLine = formatAllowanceSummary(
+    account.usage.creditsUsed,
+    account.usage.creditsIncluded,
+  );
   const planLabel = tierLabel(billing.tier);
+  const walletAttentionCount = wallets.filter(
+    (wallet) => reconcile(wallet).status === "drifted",
+  ).length;
 
   return (
     <div className="absolute inset-0 z-50 flex items-end justify-center sm:items-center sm:p-4">
@@ -105,17 +109,21 @@ export function SettingsModal({
               <Close size={16} />
             </button>
           </div>
-          <div className="flex h-[52px] items-center gap-2.5 rounded-[var(--radius-md)] bg-surface-2 px-3">
-            <span className="flex h-7 w-7 shrink-0 items-center justify-center overflow-hidden rounded-full bg-surface text-[11px] text-muted">
-              {(address || "?").slice(0, 2)}
-            </span>
-            <div className="min-w-0 flex-1">
-              <div className="truncate font-mono text-[12px] leading-none">{address || "Not connected"}</div>
-              <div className="mt-1 truncate text-[11px] leading-none text-muted">
-                {remaining.toLocaleString()} credits left · {planLabel}
+          {tab !== "general" && (
+            <div className="flex h-[52px] items-center gap-2.5 rounded-[var(--radius-md)] bg-surface-2 px-3">
+              <span className="flex h-7 w-7 shrink-0 items-center justify-center overflow-hidden rounded-full bg-surface text-[11px] text-muted">
+                {(address || "?").slice(0, 2)}
+              </span>
+              <div className="min-w-0 flex-1">
+                <div className="truncate font-mono text-[12px] leading-none">
+                  {address || "Not connected"}
+                </div>
+                <div className="mt-1 truncate text-[11px] leading-none text-muted">
+                  {allowanceLine} · {planLabel}
+                </div>
               </div>
             </div>
-          </div>
+          )}
           <div className="-mx-1 flex gap-2 overflow-x-auto px-1 pb-1 [-ms-overflow-style:none] [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
             {NAV.map(({ id, label }) => {
               const active = id === tab;
@@ -178,91 +186,22 @@ export function SettingsModal({
 
           <div className="flex-1 overflow-y-auto px-4 pb-[max(1.5rem,env(safe-area-inset-bottom))] pt-2 sm:p-5">
             {tab === "general" && (
-              <div className="flex flex-col">
-                <SettingRow
-                  title={account.primary}
-                  desc={`${account.authType} · ${account.address}`}
-                  descMono
-                >
-                  <button
-                    type="button"
-                    onClick={() => onSetTab("account")}
-                    className="flex h-8 shrink-0 items-center rounded-[var(--radius-sm)] border border-border px-3 text-[13px] font-medium leading-none text-muted transition-colors hover:text-fg"
-                  >
-                    Manage account
-                  </button>
-                </SettingRow>
-                <Divider />
-                <SettingRow
-                  title="Plan"
-                  desc={`${tierLabel(account.tier)} · member since ${account.createdAt}`}
-                >
-                  <span className="text-[13px] font-medium text-accent">
-                    {billing.credit_used.toLocaleString()} /{" "}
-                    {billing.credit_paid.toLocaleString()} credits used
-                  </span>
-                </SettingRow>
-                <Divider />
-                <SettingRow
-                  title="Monthly quota"
-                  desc={`${billing.period_utc_month} · resets each UTC month`}
-                >
-                  <span className="text-[13px] font-medium text-fg">
-                    {remaining.toLocaleString()} remaining
-                  </span>
-                </SettingRow>
-                <Divider />
-                <p className="py-2 text-[12px] leading-snug text-muted">
-                  Usage shows spend by app. Overflow settles via wallet pay when allowance is used.
-                </p>
-                <Divider />
-                <SettingRow title="Theme" desc="Match system, light, or dark">
-                  <div className="flex h-8 items-center rounded-pill border border-border p-0.5">
-                    {(["dark", "light"] as Theme[]).map((t) => (
-                      <button
-                        key={t}
-                        type="button"
-                        onClick={() => onSetTheme(t)}
-                        className={`rounded-pill px-3 py-1 text-[12px] capitalize leading-none ${
-                          theme === t ? "bg-surface-2 font-medium text-fg" : "text-muted"
-                        }`}
-                      >
-                        {t}
-                      </button>
-                    ))}
-                  </div>
-                </SettingRow>
-                <Divider />
-                <SettingRow title="Default network" desc="Used for new chats">
-                  <div className="flex h-8 items-center gap-1.5 rounded-[var(--radius-sm)] border border-border px-2.5">
-                    <NetworkMark
-                      id={networks.find((n) => n.label === network)?.id ?? "ethereum"}
-                      size={12}
-                    />
-                    <span className="truncate text-[13px] leading-none">{network}</span>
-                    <ChevronDown size={12} className="shrink-0 text-muted" />
-                  </div>
-                </SettingRow>
-                <Divider />
-                <SettingRow title="Connected wallet" desc={address || "Not connected"} descMono>
-                  <button
-                    type="button"
-                    onClick={onDisconnect}
-                    className="flex h-8 shrink-0 items-center rounded-[var(--radius-sm)] border border-border px-3 text-[13px] font-medium leading-none text-muted transition-colors hover:text-fg"
-                  >
-                    Disconnect
-                  </button>
-                </SettingRow>
-              </div>
+              <GeneralSettings
+                account={account}
+                address={address}
+                network={network}
+                theme={theme}
+                walletAttentionCount={walletAttentionCount}
+                onSetTheme={onSetTheme}
+                onManageAccount={() => onSetTab("account")}
+                onFixWallets={() => onSetTab("account")}
+                onViewUsage={() => onSetTab("usage")}
+                onDisconnect={onDisconnect}
+              />
             )}
 
             {tab === "account" && (
-              <AccountSettings
-                accountId={account.userId}
-                email={account.verifiedEmail}
-                wallets={wallets}
-                grants={grants}
-              />
+              <AccountSettings wallets={wallets} grants={grants} />
             )}
 
             {tab === "usage" && <UsageSettings />}
@@ -294,7 +233,7 @@ export function SettingsModal({
                   </button>
                 </SettingRow>
                 <Divider />
-                <SettingRow title="Create bot" desc="Simulation — fixture bots only.">
+                <SettingRow title="Create bot" desc="Fixture bots only. Simulation.">
                   <PrimaryBtn>New bot</PrimaryBtn>
                 </SettingRow>
               </div>
@@ -310,7 +249,7 @@ export function SettingsModal({
                   <GhostBtn>Replace</GhostBtn>
                 </SettingRow>
                 <Divider />
-                <SettingRow title="Add secret" desc="Write-only vault. Simulation — nothing stored.">
+                <SettingRow title="Add secret" desc="Write-only vault. Simulation only. Nothing stored.">
                   <PrimaryBtn>Add</PrimaryBtn>
                 </SettingRow>
               </div>
@@ -318,45 +257,6 @@ export function SettingsModal({
 
           </div>
         </div>
-      </div>
-    </div>
-  );
-}
-
-function SettingRow({
-  title,
-  desc,
-  descMono,
-  children,
-}: {
-  title: string;
-  desc: string;
-  descMono?: boolean;
-  children: React.ReactNode;
-}) {
-  return (
-    <div className="flex items-start justify-between gap-3 py-3.5 sm:items-center sm:gap-6 sm:py-4">
-      <div className="flex min-w-0 flex-1 flex-col gap-1">
-        <span className="text-sm font-medium leading-none">{title}</span>
-        <span className={`truncate text-[13px] leading-snug text-muted ${descMono ? "font-mono" : ""}`}>
-          {desc}
-        </span>
-      </div>
-      <div className="shrink-0">{children}</div>
-    </div>
-  );
-}
-
-function Divider() {
-  return <div className="h-px bg-border" />;
-}
-
-function Stat({ label, value, accent }: { label: string; value: string; accent?: boolean }) {
-  return (
-    <div className="rounded-[var(--radius-md)] border border-border p-3">
-      <div className="text-[11px] text-muted">{label}</div>
-      <div className={`mt-1 text-xl font-semibold tabular-nums ${accent ? "text-accent" : ""}`}>
-        {value}
       </div>
     </div>
   );
