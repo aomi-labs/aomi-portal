@@ -1,14 +1,15 @@
 "use client";
 
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState, type ReactNode } from "react";
 import {
   Chart,
+  Chat,
   Close,
-  Filter,
   Gear,
   MoreHorizontal,
   Search,
   Shield,
+  Trash,
   WalletIcon,
 } from "./icons";
 
@@ -269,15 +270,24 @@ export function AppsModal({ onClose }: AppsModalProps) {
   const [installedIds, setInstalledIds] = useState(
     () => new Set(ALL_APPS.filter((app) => app.installed).map((app) => app.id)),
   );
+  const [justInstalledId, setJustInstalledId] = useState<string | null>(null);
+  const [installToast, setInstallToast] = useState<string | null>(null);
+  const [openMenuAppId, setOpenMenuAppId] = useState<string | null>(null);
 
   useEffect(() => {
     const handleKeyDown = (event: KeyboardEvent) => {
-      if (event.key === "Escape") onClose();
+      if (event.key === "Escape") {
+        if (openMenuAppId) {
+          setOpenMenuAppId(null);
+          return;
+        }
+        onClose();
+      }
     };
 
     window.addEventListener("keydown", handleKeyDown);
     return () => window.removeEventListener("keydown", handleKeyDown);
-  }, [onClose]);
+  }, [onClose, openMenuAppId]);
 
   const visibleApps = useMemo(() => {
     const normalizedQuery = query.trim().toLowerCase();
@@ -294,163 +304,234 @@ export function AppsModal({ onClose }: AppsModalProps) {
     activeView === "public" ? PUBLIC_CATEGORIES : (["Your apps"] as const);
 
   const install = (appId: string) => {
+    const app = ALL_APPS.find((entry) => entry.id === appId);
     setInstalledIds((current) => new Set([...current, appId]));
+    setJustInstalledId(appId);
+    setInstallToast(app?.name ?? "App");
+    setOpenMenuAppId(appId);
+    window.setTimeout(() => setJustInstalledId(null), 1600);
+    window.setTimeout(() => setInstallToast(null), 2400);
+  };
+
+  const uninstall = (appId: string) => {
+    setInstalledIds((current) => {
+      const next = new Set(current);
+      next.delete(appId);
+      return next;
+    });
+    setOpenMenuAppId(null);
   };
 
   return (
-    <div
-      role="dialog"
-      aria-modal="true"
-      aria-labelledby="apps-title"
-      className="fixed inset-0 z-50 overflow-y-auto bg-background text-fg"
-    >
-      <div className="mx-auto min-h-full w-full max-w-[1120px] px-8 py-10 sm:px-12 sm:py-12">
-        <header className="relative">
-          <button
-            type="button"
-            onClick={onClose}
-            aria-label="Close apps"
-            className="absolute right-0 top-0 flex h-9 w-9 items-center justify-center rounded-full border border-border text-muted transition-colors hover:bg-surface-2 hover:text-fg"
-          >
-            <Close size={17} />
-          </button>
-          <h1 id="apps-title" className="text-[32px] font-medium tracking-[-0.025em]">
-            Apps
-          </h1>
-          <p className="mt-2 text-[17px] text-muted">
-            Connect Aomi to the protocols and tools you use every day.
-          </p>
-
-          <label className="mt-8 flex h-12 items-center gap-3 rounded-full border border-border bg-surface px-5 transition-colors focus-within:border-muted">
-            <Search size={20} className="flex-shrink-0 text-muted" />
-            <span className="sr-only">Search apps</span>
-            <input
-              type="search"
-              value={query}
-              onChange={(event) => setQuery(event.target.value)}
-              placeholder="Search apps"
-              className="min-w-0 flex-1 bg-transparent text-[15px] outline-none placeholder:text-muted"
-            />
-          </label>
-        </header>
-
-        <section className="mt-11" aria-labelledby="installed-apps-title">
-          <div className="flex items-center justify-between border-b border-border pb-4">
-            <h2 id="installed-apps-title" className="text-lg font-semibold">
-              Installed
-            </h2>
+    <>
+      <div className="absolute inset-0 z-50 flex items-end justify-center sm:items-center sm:p-4">
+        <button
+          type="button"
+          aria-label="Dismiss"
+          onClick={onClose}
+          className="absolute inset-0 bg-black/55"
+        />
+        <div
+          role="dialog"
+          aria-modal="true"
+          aria-labelledby="apps-title"
+          className="relative flex h-[min(600px,92dvh)] w-full max-w-[900px] flex-col overflow-hidden rounded-t-xl border border-border border-b-0 bg-elevated text-fg shadow-[0_24px_60px_rgba(0,0,0,0.55)] sm:rounded-lg sm:border-b"
+        >
+          <header className="relative shrink-0 border-b border-border px-4 pb-3 pt-4 sm:px-[22px] sm:pb-2 sm:pt-[22px]">
+            <h1 id="apps-title" className="text-[15px] font-semibold leading-none">
+              Apps
+            </h1>
             <button
               type="button"
-              aria-label="Manage installed apps"
-              className="flex h-8 w-8 items-center justify-center rounded-[var(--radius-sm)] text-muted transition-colors hover:bg-surface-2 hover:text-fg"
+              onClick={onClose}
+              aria-label="Close apps"
+              className="absolute right-4 top-4 flex h-8 w-8 items-center justify-center rounded-full text-muted transition-colors hover:bg-surface-2 hover:text-fg sm:right-[22px] sm:top-[18px]"
             >
-              <Gear size={18} />
+              <Close size={16} />
             </button>
-          </div>
-          <div className="flex min-h-[74px] flex-wrap items-center gap-3 py-4">
-            {installedApps.map((app) => (
-              <AppIcon key={app.id} app={app} size="small" />
-            ))}
-          </div>
-        </section>
+          </header>
 
-        <div className="mt-4 flex items-center justify-between">
-          <div className="flex items-center gap-1">
-            {(["public", "personal"] as AppVisibility[]).map((view) => (
-              <button
-                key={view}
-                type="button"
-                onClick={() => setActiveView(view)}
-                className={`rounded-[var(--radius-sm)] px-3 py-2 text-[15px] capitalize transition-colors ${
-                  activeView === view
-                    ? "bg-surface-2 font-medium text-fg"
-                    : "text-muted hover:text-fg"
-                }`}
-              >
-                {view === "public" ? "Public" : "Personal"}
-              </button>
-            ))}
-          </div>
-          <button
-            type="button"
-            aria-label="Filter apps"
-            className="flex h-9 w-9 items-center justify-center rounded-[var(--radius-sm)] text-muted transition-colors hover:bg-surface-2 hover:text-fg"
-          >
-            <Filter size={19} />
-          </button>
-        </div>
+          <div className="flex min-h-0 flex-1 flex-col px-4 pb-5 pt-4 sm:px-[22px]">
+            <label className="flex h-[38px] items-center gap-2.5 rounded-full border border-border bg-surface-2/25 px-4 transition-colors focus-within:border-muted/70">
+              <Search size={16} className="shrink-0 text-muted" />
+              <span className="sr-only">Search apps</span>
+              <input
+                type="search"
+                value={query}
+                onChange={(event) => setQuery(event.target.value)}
+                placeholder="Search apps"
+                className="min-w-0 flex-1 bg-transparent text-[13px] text-fg outline-none placeholder:text-muted"
+              />
+            </label>
 
-        <div className="pb-12 pt-7">
-          {visibleApps.length === 0 ? (
-            <div className="border-t border-border py-16 text-center">
-              <p className="font-medium">No apps found</p>
-              <p className="mt-1 text-sm text-muted">
-                Try another name or capability.
-              </p>
+            {installedApps.length > 0 && (
+              <section className="mt-4" aria-labelledby="installed-apps-title">
+                <span
+                  id="installed-apps-title"
+                  className="text-[13px] font-semibold leading-none"
+                >
+                  Installed
+                </span>
+                <div className="mt-3 flex gap-3 overflow-x-auto pb-1">
+                  {installedApps.map((app) => (
+                    <InstalledAppDockIcon key={app.id} app={app} />
+                  ))}
+                </div>
+              </section>
+            )}
+
+            <div className="mt-4 flex items-center gap-1">
+              {(["public", "personal"] as AppVisibility[]).map((view) => (
+                <button
+                  key={view}
+                  type="button"
+                  onClick={() => setActiveView(view)}
+                  className={`rounded-full px-3.5 py-[5px] text-[13px] capitalize transition-colors ${
+                    activeView === view
+                      ? "bg-surface-2 font-medium text-fg"
+                      : "text-muted hover:text-fg"
+                  }`}
+                >
+                  {view === "public" ? "Public" : "Personal"}
+                </button>
+              ))}
             </div>
-          ) : (
-            categories.map((category) => {
-              const apps = visibleApps.filter((app) => app.category === category);
-              if (apps.length === 0) return null;
-              const categoryId = `apps-${category.toLowerCase().replaceAll(/[^a-z0-9]+/g, "-")}`;
 
-              return (
-                <section key={category} className="mb-10" aria-labelledby={categoryId}>
-                  <h2
-                    id={categoryId}
-                    className="border-b border-border pb-4 text-lg font-semibold"
-                  >
-                    {category}
-                  </h2>
-                  <div className="grid md:grid-cols-2 md:gap-x-14">
-                    {apps.map((app) => (
-                      <AppRow
-                        key={app.id}
-                        app={app}
-                        installed={installedIds.has(app.id)}
-                        onInstall={() => install(app.id)}
-                      />
-                    ))}
-                  </div>
-                </section>
-              );
-            })
-          )}
+            <div className="mt-4 min-h-0 flex-1 overflow-y-auto border-t border-border pt-4">
+              {visibleApps.length === 0 ? (
+                <div className="flex min-h-40 flex-col items-center justify-center px-4 py-8 text-center">
+                  <p className="text-[13px] font-medium">No apps found</p>
+                  <p className="mt-1 text-[12px] text-muted">Try another name or capability.</p>
+                </div>
+              ) : (
+                <div className="flex flex-col gap-6 pb-2">
+                  {categories.map((category) => {
+                    const apps = visibleApps.filter((app) => app.category === category);
+                    if (apps.length === 0) return null;
+                    const categoryId = `apps-${category.toLowerCase().replaceAll(/[^a-z0-9]+/g, "-")}`;
+
+                    return (
+                      <section key={category} aria-labelledby={categoryId}>
+                        <h2
+                          id={categoryId}
+                          className="border-b border-border pb-3 text-[13px] font-semibold"
+                        >
+                          {category}
+                        </h2>
+                        <div className="grid md:grid-cols-2 md:gap-x-8">
+                          {apps.map((app) => (
+                            <CatalogAppRow
+                              key={app.id}
+                              app={app}
+                              installed={installedIds.has(app.id)}
+                              menuOpen={openMenuAppId === app.id}
+                              highlight={justInstalledId === app.id}
+                              onInstall={() => install(app.id)}
+                              onToggleMenu={() =>
+                                setOpenMenuAppId((current) =>
+                                  current === app.id ? null : app.id,
+                                )
+                              }
+                              onCloseMenu={() => setOpenMenuAppId(null)}
+                              onUninstall={() => uninstall(app.id)}
+                              onChat={() => {
+                                setInstallToast(`Opened chat with ${app.name}`);
+                                setOpenMenuAppId(null);
+                                window.setTimeout(() => setInstallToast(null), 2400);
+                              }}
+                              onManage={() => {
+                                setInstallToast(`Manage ${app.name} (simulation)`);
+                                setOpenMenuAppId(null);
+                                window.setTimeout(() => setInstallToast(null), 2400);
+                              }}
+                            />
+                          ))}
+                        </div>
+                      </section>
+                    );
+                  })}
+                </div>
+              )}
+            </div>
+          </div>
         </div>
+
+        {installToast && (
+          <div
+            role="status"
+            aria-live="polite"
+            className="pointer-events-none absolute bottom-6 left-1/2 z-[60] -translate-x-1/2 rounded-full border border-border bg-elevated px-4 py-2 text-[13px] font-medium text-fg shadow-[0_12px_40px_rgba(0,0,0,0.45)]"
+          >
+            {installToast} installed
+          </div>
+        )}
       </div>
-    </div>
+    </>
   );
 }
 
-function AppRow({
+function InstalledAppDockIcon({ app }: { app: CatalogApp }) {
+  return (
+    <button
+      type="button"
+      title={app.name}
+      aria-label={app.name}
+      className="shrink-0 transition-transform hover:scale-[1.03]"
+    >
+      <AppIcon app={app} size="dock" />
+    </button>
+  );
+}
+
+function CatalogAppRow({
   app,
   installed,
+  menuOpen,
+  highlight,
   onInstall,
+  onToggleMenu,
+  onCloseMenu,
+  onUninstall,
+  onChat,
+  onManage,
 }: {
   app: CatalogApp;
   installed: boolean;
+  menuOpen: boolean;
+  highlight: boolean;
   onInstall: () => void;
+  onToggleMenu: () => void;
+  onCloseMenu: () => void;
+  onUninstall: () => void;
+  onChat: () => void;
+  onManage: () => void;
 }) {
   return (
-    <article className="flex min-h-[92px] items-center gap-4 border-b border-border py-4">
-      <AppIcon app={app} />
-      <div className="min-w-0 flex-1">
-        <h3 className="truncate text-[15px] font-semibold">{app.name}</h3>
-        <p className="mt-1 truncate text-sm text-muted">{app.description}</p>
+    <article
+      className={`group/row relative flex items-start gap-3.5 rounded-[var(--radius-md)] py-4 pr-1 transition-colors hover:bg-surface-2/25 ${
+        highlight ? "bg-surface-2/30 ring-1 ring-inset ring-border" : ""
+      }`}
+    >
+      <AppIcon app={app} size="lg" />
+      <div className="min-w-0 flex-1 pt-0.5">
+        <h3 className="text-[15px] font-medium leading-snug">{app.name}</h3>
+        <p className="mt-1 line-clamp-2 text-[13px] leading-snug text-muted">{app.description}</p>
       </div>
       {installed ? (
-        <button
-          type="button"
-          aria-label={`More options for ${app.name}`}
-          className="flex h-9 w-9 flex-shrink-0 items-center justify-center rounded-[var(--radius-sm)] text-muted transition-colors hover:bg-surface-2 hover:text-fg"
-        >
-          <MoreHorizontal size={18} />
-        </button>
+        <AppOptionsTrigger
+          appName={app.name}
+          open={menuOpen}
+          onToggle={onToggleMenu}
+          onClose={onCloseMenu}
+          onChat={onChat}
+          onManage={onManage}
+          onUninstall={onUninstall}
+        />
       ) : (
         <button
           type="button"
           onClick={onInstall}
-          className="flex-shrink-0 rounded-[var(--radius-md)] border border-border px-3.5 py-2 text-sm font-medium transition-colors hover:bg-surface-2"
+          className="mt-0.5 h-9 shrink-0 rounded-full border border-border bg-surface-2/50 px-4 text-[13px] font-medium text-fg transition-colors hover:bg-surface-2"
         >
           Install
         </button>
@@ -459,15 +540,104 @@ function AppRow({
   );
 }
 
+function AppOptionsTrigger({
+  appName,
+  open,
+  onToggle,
+  onClose,
+  onChat,
+  onManage,
+  onUninstall,
+}: {
+  appName: string;
+  open: boolean;
+  onToggle: () => void;
+  onClose: () => void;
+  onChat: () => void;
+  onManage: () => void;
+  onUninstall: () => void;
+}) {
+  const rootRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    if (!open) return;
+    const onPointer = (event: MouseEvent) => {
+      if (rootRef.current && !rootRef.current.contains(event.target as Node)) {
+        onClose();
+      }
+    };
+    document.addEventListener("mousedown", onPointer);
+    return () => document.removeEventListener("mousedown", onPointer);
+  }, [open, onClose]);
+
+  return (
+    <div ref={rootRef} className="relative mt-0.5 shrink-0">
+      <button
+        type="button"
+        aria-label={`More options for ${appName}`}
+        aria-expanded={open}
+        onClick={onToggle}
+        className={`flex h-9 w-9 items-center justify-center rounded-full text-muted transition-all hover:bg-surface-2 hover:text-fg ${
+          open ? "bg-surface-2 text-fg" : "opacity-70 group-hover/row:opacity-100"
+        }`}
+      >
+        <MoreHorizontal size={18} />
+      </button>
+      {open && (
+        <div className="absolute right-0 top-[calc(100%+6px)] z-50 flex w-[188px] flex-col gap-0.5 rounded-[10px] border border-border bg-elevated p-1.5 shadow-[0_16px_40px_rgba(0,0,0,0.5)]">
+          <AppMenuItem icon={<Chat size={16} />} label="Chat" onClick={onChat} />
+          <AppMenuItem icon={<Gear size={16} />} label="Manage" onClick={onManage} />
+          <AppMenuItem
+            icon={<Trash size={16} />}
+            label="Uninstall"
+            onClick={onUninstall}
+            destructive
+          />
+        </div>
+      )}
+    </div>
+  );
+}
+
+function AppMenuItem({
+  icon,
+  label,
+  onClick,
+  destructive,
+}: {
+  icon: ReactNode;
+  label: string;
+  onClick: () => void;
+  destructive?: boolean;
+}) {
+  return (
+    <button
+      type="button"
+      onClick={onClick}
+      className={`flex w-full items-center gap-2.5 rounded-[8px] px-2.5 py-2 text-left text-[13px] transition-colors ${
+        destructive
+          ? "text-danger hover:bg-danger/10"
+          : "text-fg hover:bg-surface-2/80"
+      }`}
+    >
+      <span className={destructive ? "text-danger" : "text-muted"}>{icon}</span>
+      {label}
+    </button>
+  );
+}
+
 function AppIcon({
   app,
-  size = "large",
+  size = "lg",
 }: {
   app: CatalogApp;
-  size?: "small" | "large";
+  size?: "dock" | "lg";
 }) {
-  const sizeClass = size === "small" ? "h-11 w-11 text-xs" : "h-12 w-12 text-sm";
-  const glyphSize = size === "small" ? 21 : 23;
+  const sizeClass =
+    size === "dock"
+      ? "h-11 w-11 rounded-full text-xs shadow-[0_1px_2px_rgba(0,0,0,0.12)]"
+      : "h-11 w-11 rounded-[14px] text-xs";
+  const glyphSize = 20;
   const Glyph =
     app.glyph === "chart"
       ? Chart
@@ -478,8 +648,8 @@ function AppIcon({
   return (
     <div
       title={app.name}
-      aria-label={app.name}
-      className={`flex flex-shrink-0 items-center justify-center rounded-[13px] border border-black/10 font-bold tracking-[-0.04em] shadow-sm ${sizeClass}`}
+      aria-hidden="true"
+      className={`flex shrink-0 items-center justify-center border border-black/10 font-bold tracking-[-0.04em] ${sizeClass}`}
       style={{ backgroundColor: app.background, color: app.foreground }}
     >
       {app.iconDomain || app.iconUrl ? (

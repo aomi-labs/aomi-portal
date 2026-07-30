@@ -6,14 +6,16 @@ import type { MonthlyStatement } from "../contracts";
 import { usageFixture } from "../usage-fixture";
 import { ArrowLeft, Check, ChevronDown } from "./icons";
 import {
+  AllowanceSettlementSection,
   AppGroup,
   MatrixTable,
-  Meter,
   MODEL_COLS,
   monthShortLabel,
-  formatPeriodRange,
   OutcomeTable,
+  SectionHeading,
+  SpendBreakdownSection,
   StatementSection,
+  USAGE_MATRIX_HINT,
   usd,
 } from "./usage-shared";
 
@@ -28,10 +30,8 @@ const SUBJECTS: { id: Subject; label: string }[] = [
 ];
 
 /**
- * /statement — the full usage statement as its own page: month picker,
- * By app / Itemized views, and app + subject filters. All data pre-rolled
- * in `user-fixture.json`; sums here are display-only aggregation of the
- * rows being shown.
+ * /statement — full usage statement: month picker, itemized audit, filters.
+ * Top summary band matches Settings › Usage; detail below is statement-only.
  */
 export function StatementView() {
   const { account, months } = usageFixture;
@@ -40,8 +40,8 @@ export function StatementView() {
   const [appFilter, setAppFilter] = useState<string>("all");
   const [subject, setSubject] = useState<Subject>("all");
 
-  const month = months[monthIdx];
-  const { period, summary, payment } = month;
+  const month = months[monthIdx]!;
+  const { summary } = month;
 
   const selectMonth = (idx: number) => {
     setMonthIdx(idx);
@@ -49,17 +49,10 @@ export function StatementView() {
     setSubject("all");
   };
 
-  const over = payment.x402SettledUsd > 0;
-  const creditsPct = Math.min(
-    100,
-    (payment.allowanceCredits.used / payment.allowanceCredits.included) * 100,
-  );
-
   return (
     <div className="dark">
       <div className="min-h-screen bg-background font-sans text-fg">
-        <div className="mx-auto flex max-w-4xl flex-col gap-7 px-6 py-8">
-          {/* Header */}
+        <div className="mx-auto flex max-w-4xl flex-col gap-6 px-6 py-8">
           <header className="flex flex-col gap-5">
             <Link
               href="/"
@@ -68,17 +61,17 @@ export function StatementView() {
               <ArrowLeft size={14} />
               Back to chat
             </Link>
-            <div className="flex flex-wrap items-end justify-between gap-4">
-              <div className="flex flex-col gap-1">
-                <h1 className="text-xl font-semibold tracking-tight">Usage statement</h1>
-                <span className="text-[13px] text-muted">
-                  {account.handle} ·{" "}
-                  <span className="font-mono">
-                    {account.address.slice(0, 6)}…{account.address.slice(-4)}
-                  </span>
+            <div className="flex flex-col gap-1">
+              <h1 className="text-xl font-semibold tracking-tight">Usage statement</h1>
+              <span className="text-[13px] text-muted">
+                {account.handle} ·{" "}
+                <span className="font-mono">
+                  {account.address.slice(0, 6)}…{account.address.slice(-4)}
                 </span>
-              </div>
-              {/* Month picker */}
+              </span>
+            </div>
+
+            <StatementPeriodHero totalUsd={summary.totalUsd}>
               <Dropdown
                 value={String(monthIdx)}
                 options={months.map((m, i) => ({
@@ -87,94 +80,103 @@ export function StatementView() {
                 }))}
                 onChange={(id) => selectMonth(Number(id))}
               />
-            </div>
+            </StatementPeriodHero>
           </header>
 
-          {/* Subject tiles */}
-          <div className="grid grid-cols-2 gap-2.5 sm:grid-cols-4">
-            <StatTile label="Total" value={usd(summary.totalUsd)} primary />
-            <StatTile label="Models" value={usd(summary.modelUsd)} />
-            <StatTile label="Tool calls" value={usd(summary.toolUsd)} />
-            <StatTile label="On-chain fees" value={usd(summary.onchainUsd)} />
-          </div>
+          <SpendBreakdownSection month={month} />
 
-          {/* Payment strip */}
-          <div className="flex flex-col gap-2.5 rounded-[var(--radius-md)] border border-border bg-surface px-4 py-3.5">
-            <div className="flex flex-wrap items-center justify-between gap-2">
-              <span className="text-[13px] text-muted">{formatPeriodRange(period)}</span>
-              <span className="text-[13px] text-muted">
-                Credits {payment.allowanceCredits.used}/{payment.allowanceCredits.included} · paid
-                via {payment.settledVia}
-              </span>
-            </div>
-            <Meter pct={creditsPct} over={over} />
-            <span className="text-[11px] text-muted">
-              {over
-                ? `${usd(payment.x402SettledUsd)} billed via x402 beyond your ${usd(
-                    payment.allowanceAppliedUsd,
-                  )} monthly allowance · on-chain fees ${payment.onchainNote}.`
-                : `Compute fully covered by your monthly allowance (${usd(
-                    payment.allowanceAppliedUsd,
-                  )} applied) · on-chain fees ${payment.onchainNote}.`}
-            </span>
-          </div>
+          <AllowanceSettlementSection month={month} />
 
-          {/* Controls: view toggle + filters */}
-          <div className="flex flex-wrap items-center justify-between gap-3">
-            <div className="flex rounded-full border border-border p-[3px]">
-              {(["byApp", "itemized"] as View[]).map((v) => (
-                <button
-                  key={v}
-                  onClick={() => setView(v)}
-                  className={`rounded-full px-3.5 py-[6px] text-xs font-medium transition-colors ${
-                    view === v ? "bg-surface-2 text-fg" : "text-muted hover:text-fg"
-                  }`}
-                >
-                  {v === "byApp" ? "By app" : "Itemized"}
-                </button>
-              ))}
-            </div>
-
-            <Dropdown
-              value={appFilter}
-              options={[
-                { id: "all", label: "All apps" },
-                ...month.apps.map((app) => ({ id: app.id, label: app.name })),
-              ]}
-              onChange={setAppFilter}
+          <section className="flex flex-col gap-3">
+            <SectionHeading
+              title="Statement detail"
+              hint={view === "byApp" ? "Pivot by app" : "Line-by-line audit"}
             />
-          </div>
 
-          {view === "itemized" && (
-            <div className="-mt-3 flex flex-wrap items-center gap-1.5">
-              <span className="mr-1 text-[11px] uppercase tracking-wide text-muted">Subject</span>
-              {SUBJECTS.map((s) => (
-                <FilterChip key={s.id} active={subject === s.id} onClick={() => setSubject(s.id)}>
-                  {s.label}
-                </FilterChip>
-              ))}
-            </div>
-          )}
-
-          {/* Content */}
-          {view === "byApp" ? (
-            <div className="rounded-[var(--radius-md)] border border-border bg-surface px-4 py-2">
-              <div className="py-2">
-                <MatrixTable month={month} appId={appFilter} />
+            <div className="flex flex-wrap items-center justify-between gap-3">
+              <div className="flex rounded-full border border-border p-[3px]">
+                {(["byApp", "itemized"] as View[]).map((v) => (
+                  <button
+                    key={v}
+                    type="button"
+                    onClick={() => setView(v)}
+                    className={`rounded-full px-3.5 py-[6px] text-xs font-medium transition-colors ${
+                      view === v ? "bg-surface-2 text-fg" : "text-muted hover:text-fg"
+                    }`}
+                  >
+                    {v === "byApp" ? "By app" : "Itemized"}
+                  </button>
+                ))}
               </div>
+
+              <Dropdown
+                value={appFilter}
+                options={[
+                  { id: "all", label: "All apps" },
+                  ...month.apps.map((app) => ({ id: app.id, label: app.name })),
+                ]}
+                onChange={setAppFilter}
+              />
             </div>
-          ) : (
-            <ItemizedContent month={month} appFilter={appFilter} subject={subject} />
-          )}
+
+            {view === "itemized" && (
+              <div className="flex flex-wrap items-center gap-1.5">
+                <span className="mr-1 text-[11px] uppercase tracking-wide text-muted">Subject</span>
+                {SUBJECTS.map((s) => (
+                  <FilterChip
+                    key={s.id}
+                    active={subject === s.id}
+                    onClick={() => setSubject(s.id)}
+                  >
+                    {s.label}
+                  </FilterChip>
+                ))}
+              </div>
+            )}
+
+            {view === "byApp" ? (
+              <div className="flex flex-col gap-2.5">
+                <SectionHeading title="By app" hint={USAGE_MATRIX_HINT} />
+                <div className="overflow-hidden rounded-[var(--radius-md)] border border-border bg-background/40 px-4 py-2 sm:px-5">
+                  <div className="py-2">
+                    <MatrixTable month={month} appId={appFilter} />
+                  </div>
+                </div>
+              </div>
+            ) : (
+              <ItemizedContent month={month} appFilter={appFilter} subject={subject} />
+            )}
+          </section>
         </div>
       </div>
     </div>
   );
 }
 
-/* ---------------------------------------------------------------------- */
-/* Itemized content with filters                                           */
-/* ---------------------------------------------------------------------- */
+function StatementPeriodHero({
+  totalUsd,
+  children,
+}: {
+  totalUsd: number;
+  children: ReactNode;
+}) {
+  return (
+    <div className="flex items-end justify-between gap-4 border-b border-border pb-4">
+      <div className="min-w-0 flex flex-col gap-2">
+        <span className="text-[10px] font-medium uppercase tracking-[0.08em] text-muted">
+          Statement period
+        </span>
+        {children}
+      </div>
+      <div className="shrink-0 text-right">
+        <span className="font-mono text-2xl font-semibold tabular-nums leading-none">
+          {usd(totalUsd)}
+        </span>
+        <span className="mt-1 block text-[11px] text-muted">Total spend</span>
+      </div>
+    </div>
+  );
+}
 
 function ItemizedContent({
   month,
@@ -194,7 +196,6 @@ function ItemizedContent({
 
   const visibleApps = month.apps.filter((a) => appFilter === "all" || a.id === appFilter);
 
-  // Section A: apps that still have rows under the current subject filter.
   const computeApps = visibleApps.filter(
     (a) => (showModels && a.model.byModel.length > 0) || (showTools && a.tool !== null),
   );
@@ -218,13 +219,12 @@ function ItemizedContent({
 
   if (!showSectionA && !showSectionB) {
     return (
-      <div className="rounded-[var(--radius-md)] border border-border bg-surface px-4 py-10 text-center text-[13px] text-muted">
+      <div className="rounded-[var(--radius-md)] border border-border bg-background/40 px-4 py-10 text-center text-[13px] text-muted">
         No items match these filters.
       </div>
     );
   }
 
-  // Footer recipients — only honest for the unfiltered month.
   const aomiTotal = month.apps.reduce(
     (s, a) => s + (a.native ? a.model.chargedUsd : a.settings.appByok ? 0 : a.model.baseUsd),
     0,
@@ -274,39 +274,37 @@ function ItemizedContent({
         </StatementSection>
       )}
 
-      {/* Total for what's displayed */}
-      <div className="flex items-center justify-between rounded-[var(--radius-md)] border border-border bg-surface px-4 py-3.5">
+      <div className="flex items-center justify-between rounded-[var(--radius-md)] border border-border bg-background/40 px-4 py-3.5">
         <span className="text-sm font-semibold">
           {filtersActive ? "Filtered total" : `Total · ${period.periodLabel}`}
         </span>
-        <span className="font-mono text-base font-semibold">
+        <span className="font-mono text-base font-semibold tabular-nums">
           {usd(filtersActive ? sectionATotal + sectionBTotal : summary.totalUsd)}
         </span>
       </div>
 
-      {/* Where your money went — whole-month rollup, hidden while filtered */}
       {!filtersActive && (
-        <div className="flex flex-col gap-2.5 rounded-[var(--radius-md)] border border-border bg-surface p-4">
+        <div className="flex flex-col gap-2.5 rounded-[var(--radius-md)] border border-border bg-background/40 p-4">
           <span className="text-[13px] font-semibold">Where your money went</span>
           <div className="flex flex-col gap-2 text-[13px]">
             <div className="flex items-center justify-between">
-              <span>Aomi — model compute on managed/native</span>
-              <span className="font-mono">{usd(aomiTotal)}</span>
+              <span>Aomi · model compute on managed/native</span>
+              <span className="font-mono tabular-nums">{usd(aomiTotal)}</span>
             </div>
             <div className="flex flex-col gap-1">
-              <span>The apps — tool + outcome fees</span>
+              <span>The apps · tool + outcome fees</span>
               <div className="flex flex-col gap-1 border-l border-border pl-3">
                 {appRecipients.map((a) => (
                   <div key={a.name} className="flex items-center justify-between text-muted">
                     <span>{a.name}</span>
-                    <span className="font-mono text-fg">{usd(a.amount)}</span>
+                    <span className="font-mono tabular-nums text-fg">{usd(a.amount)}</span>
                   </div>
                 ))}
               </div>
             </div>
             <div className="flex items-center justify-between text-muted">
               <span>Your model provider</span>
-              <span>— (would show for BYOK)</span>
+              <span>None (would show for BYOK)</span>
             </div>
           </div>
           <span className="text-[11px] text-muted">
@@ -315,27 +313,6 @@ function ItemizedContent({
           </span>
         </div>
       )}
-    </div>
-  );
-}
-
-/* ---------------------------------------------------------------------- */
-/* Bits                                                                    */
-/* ---------------------------------------------------------------------- */
-
-function StatTile({
-  label,
-  value,
-  primary,
-}: {
-  label: string;
-  value: string;
-  primary?: boolean;
-}) {
-  return (
-    <div className="flex flex-col gap-1 rounded-[var(--radius-md)] border border-border bg-surface px-4 py-3.5">
-      <span className="text-[11px] text-muted">{label}</span>
-      <span className={`font-mono font-semibold ${primary ? "text-xl" : "text-lg"}`}>{value}</span>
     </div>
   );
 }
@@ -355,6 +332,7 @@ function Dropdown({
   return (
     <div className="relative">
       <button
+        type="button"
         onClick={() => setOpen((o) => !o)}
         className="flex items-center gap-2 rounded-full border border-border px-3.5 py-[7px] text-xs font-medium text-fg transition-colors hover:bg-surface-2/60"
       >
@@ -366,18 +344,19 @@ function Dropdown({
       </button>
       {open && (
         <>
-          {/* click-away backdrop */}
           <button
             aria-label="Close menu"
+            type="button"
             onClick={() => setOpen(false)}
             className="fixed inset-0 z-20 cursor-default"
           />
-          <div className="absolute right-0 top-full z-30 mt-1.5 min-w-[160px] overflow-hidden rounded-[var(--radius-md)] border border-border bg-surface-2 py-1 shadow-[0_12px_32px_rgba(0,0,0,0.5)]">
+          <div className="absolute left-0 top-full z-30 mt-1.5 min-w-[160px] overflow-hidden rounded-[var(--radius-md)] border border-border bg-surface-2 py-1 shadow-[0_12px_32px_rgba(0,0,0,0.5)]">
             {options.map((o) => {
               const selected = o.id === value;
               return (
                 <button
                   key={o.id}
+                  type="button"
                   onClick={() => {
                     onChange(o.id);
                     setOpen(false);
@@ -409,6 +388,7 @@ function FilterChip({
 }) {
   return (
     <button
+      type="button"
       onClick={onClick}
       className={`rounded-full border px-3 py-[5px] text-xs transition-colors ${
         active

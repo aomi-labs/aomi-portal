@@ -520,7 +520,7 @@ export function useChatSession(): ChatSessionApi {
     setOverlay("none");
     setWalletRequest(null);
     setState("completed");
-    showToast("Cancelled locally — wallet not opened", "info");
+    showToast("Cancelled locally. Wallet not opened", "info");
   }, [showToast]);
 
   const copyAnswer = useCallback(() => {

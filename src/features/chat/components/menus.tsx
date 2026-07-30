@@ -1,6 +1,8 @@
 "use client";
 
+import { Button } from "@aomi-labs/design";
 import { commandItems } from "../fixtures";
+import { formatAllowanceSummary } from "../billing-fixtures";
 import { AppMark, ChevronDown, Lock, Logout, Search } from "./icons";
 import { EthereumMark, RabbyMark } from "./brands";
 
@@ -71,6 +73,8 @@ export function AccountMenu({
   ens,
   address,
   credits,
+  creditUsed,
+  creditIncluded,
   network,
   theme,
   onManageWallets,
@@ -83,6 +87,8 @@ export function AccountMenu({
   ens?: string;
   address?: string;
   credits?: number;
+  creditUsed?: number;
+  creditIncluded?: number;
   network?: string;
   theme: string;
   onManageWallets: () => void;
@@ -92,6 +98,10 @@ export function AccountMenu({
   onDisconnect: () => void;
   onClose: () => void;
 }) {
+  const allowanceLine =
+    creditUsed != null && creditIncluded != null
+      ? formatAllowanceSummary(creditUsed, creditIncluded)
+      : `${(credits ?? 0).toLocaleString()} credits left`;
   return (
     <>
       <button aria-label="Dismiss" className="fixed inset-0 z-30 cursor-default" onClick={onClose} />
@@ -102,9 +112,7 @@ export function AccountMenu({
             <span className="truncate text-[13px] font-semibold">{ens ?? "Wallet"}</span>
           </div>
           <div className="mt-1 truncate font-mono text-[11px] text-muted">{address}</div>
-          <div className="mt-2 text-[12px] font-medium text-accent">
-            {(credits ?? 0).toLocaleString()} credits left
-          </div>
+          <div className="mt-2 text-[12px] font-medium text-muted">{allowanceLine}</div>
         </div>
         <MenuRow label="Manage wallets" onClick={onManageWallets} trailing="›" />
         <MenuRow label="Switch network" onClick={onSwitchNetwork} trailing={`${network?.slice(0, 3) ?? "Net"} ›`} />
@@ -167,7 +175,7 @@ export function WorkspaceMenu({ onClose }: { onClose: () => void }) {
           Workspace
         </div>
         <div className="flex h-10 items-center justify-between rounded-[var(--radius-sm)] bg-surface-2 px-2.5">
-          <span className="text-[13px] font-medium">Aomi Chat</span>
+          <span className="text-[13px] font-medium">Aomi Portal</span>
           <span className="text-[11px] font-medium text-accent">Active</span>
         </div>
         <a

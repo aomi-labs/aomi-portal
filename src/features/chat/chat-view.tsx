@@ -152,6 +152,8 @@ export function ChatMockView() {
                 ens={s.account.ens}
                 address={s.account.address}
                 credits={s.account.credits}
+                creditUsed={s.account.billing?.credit_used}
+                creditIncluded={s.account.billing?.credit_paid}
                 network={networkLabel}
                 theme={resolvedTheme}
                 onManageWallets={() => {

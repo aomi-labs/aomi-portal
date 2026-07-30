@@ -3,6 +3,7 @@
 import Image from "next/image";
 import { useEffect, useRef, useState, type ReactNode } from "react";
 import type { Account, Thread } from "../contracts";
+import { formatAllowanceSummary } from "../billing-fixtures";
 import {
   ChevronDown,
   ChevronExpand,
@@ -228,7 +229,17 @@ export function Sidebar({
           </span>
           <span className="truncate text-[11px] leading-none text-muted">
             {account.connected
-              ? `${account.credits?.toLocaleString()} credits`
+              ? account.billing
+                ? formatAllowanceSummary(
+                    account.billing.credit_used,
+                    account.billing.credit_paid,
+                  )
+                : account.creditCap != null && account.credits != null
+                  ? formatAllowanceSummary(
+                      account.creditCap - account.credits,
+                      account.creditCap,
+                    )
+                  : `${account.credits?.toLocaleString() ?? 0} credits`
               : "Connect wallet"}
           </span>
         </div>

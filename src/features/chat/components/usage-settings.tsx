@@ -2,99 +2,54 @@
 
 import Link from "next/link";
 import { usageFixture } from "../usage-fixture";
-import { MatrixTable, Meter, usd } from "./usage-shared";
+import {
+  AllowanceSettlementSection,
+  MatrixTable,
+  PeriodTotalHero,
+  SectionHeading,
+  SpendBreakdownSection,
+  USAGE_MATRIX_HINT,
+} from "./usage-shared";
+import { ChevronDown } from "./icons";
 
 /**
- * Settings › Usage — the compact popup view: the three-subject summary with
- * the by-app matrix directly under it. The itemized full statement lives on
- * its own page at /statement.
+ * Settings › Usage — full Cecilia detail (summary, allowance, by-app matrix)
+ * with product hierarchy: scan → understand settlement → drill by app → statement.
  */
 export function UsageSettings() {
-  // Newest month is the live one.
-  const month = usageFixture.months[0];
-  const { period, summary, payment } = month;
-
-  const turns = month.apps.reduce((s, a) => s + a.model.turns, 0);
-  const toolCalls = month.apps.reduce((s, a) => s + (a.tool?.calls ?? 0), 0);
-  const txns = month.apps.reduce((s, a) => s + (a.outcome?.txns ?? 0), 0);
-
-  const over = payment.x402SettledUsd > 0;
-  const creditsPct = Math.min(
-    100,
-    (payment.allowanceCredits.used / payment.allowanceCredits.included) * 100,
-  );
+  const month = usageFixture.months[0]!;
+  const { period, summary } = month;
 
   return (
-    <div className="flex-1 overflow-y-auto px-[22px] py-5">
-      <div className="flex flex-col gap-7">
-        {/* Summary card */}
-        <div className="overflow-hidden">
-          <div className="flex items-center justify-between border-b border-border p-4">
-            <span className="text-sm font-semibold">Usage</span>
-            <span className="text-[13px] text-muted">{period.periodLabel}</span>
-          </div>
+    <div className="flex flex-col gap-6">
+      <PeriodTotalHero periodLabel={period.periodLabel} totalUsd={summary.totalUsd} />
 
-          <div className="flex flex-col gap-3 p-4">
-            <SummaryRow label="Models" detail={`${turns} turns`} amount={usd(summary.modelUsd)} />
-            <SummaryRow label="Tool calls" detail={`${toolCalls} calls`} amount={usd(summary.toolUsd)} />
-            <SummaryRow
-              label="On-chain fees"
-              detail={`${txns} transactions`}
-              amount={usd(summary.onchainUsd)}
-            />
-            <div className="mt-1 flex items-center justify-between border-t border-border pt-3">
-              <span className="text-sm font-semibold">Total</span>
-              <span className="font-mono text-base font-semibold">{usd(summary.totalUsd)}</span>
-            </div>
-          </div>
+      <SpendBreakdownSection month={month} />
 
-          <div className="flex flex-col gap-2 border-t border-border p-4">
-            <span className="text-[13px] text-muted">
-              Credits {payment.allowanceCredits.used}/{payment.allowanceCredits.included} · paid via{" "}
-              {payment.settledVia}
-            </span>
-            <Meter pct={creditsPct} over={over} />
-            {over && (
-              <span className="text-[11px] text-muted">
-                {usd(payment.x402SettledUsd)} billed via x402 beyond your{" "}
-                {usd(payment.allowanceAppliedUsd)} monthly allowance.
-              </span>
-            )}
-          </div>
+      <AllowanceSettlementSection month={month} />
 
-          <div className="flex items-center justify-end border-t border-border p-4">
-            <Link
-              href="/statement"
-              className="text-[13px] font-medium text-accent transition-opacity hover:opacity-80"
-            >
-              View full statement →
-            </Link>
-          </div>
-        </div>
-
-        {/* By app — frameless, right under the summary */}
-        <div className="flex flex-col gap-2.5">
-          <div className="flex items-baseline justify-between">
-            <span className="text-sm font-semibold">By app</span>
-            <span className="text-[11px] text-muted">
-              hover a value for the count behind it
-            </span>
-          </div>
+      <section className="flex flex-col gap-2.5">
+        <SectionHeading title="By app" hint={USAGE_MATRIX_HINT} />
+        <div className="overflow-hidden rounded-[var(--radius-md)] border border-border bg-background/40 px-4 py-3 sm:px-5">
           <MatrixTable month={month} />
         </div>
-      </div>
-    </div>
-  );
-}
+      </section>
 
-function SummaryRow({ label, detail, amount }: { label: string; detail: string; amount: string }) {
-  return (
-    <div className="flex items-center justify-between">
-      <div className="flex flex-col gap-0.5">
-        <span className="text-sm">{label}</span>
-        <span className="text-[11px] text-muted">{detail}</span>
-      </div>
-      <span className="font-mono text-sm">{amount}</span>
+      <Link
+        href="/statement"
+        className="group flex items-center justify-between gap-3 rounded-[var(--radius-md)] border border-border bg-surface/40 px-4 py-3.5 transition-colors hover:bg-surface-2/40 sm:px-5"
+      >
+        <div className="min-w-0 flex flex-col gap-0.5">
+          <span className="text-sm font-medium leading-none">Full statement</span>
+          <span className="text-[12px] leading-snug text-muted">
+            Itemized lines, past months, and filters
+          </span>
+        </div>
+        <ChevronDown
+          size={14}
+          className="-rotate-90 shrink-0 text-muted transition-colors group-hover:text-fg"
+        />
+      </Link>
     </div>
   );
 }

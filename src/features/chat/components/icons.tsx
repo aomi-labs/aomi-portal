@@ -18,6 +18,7 @@ import {
   ChevronDownIcon,
   ChevronUpDownIcon,
   ChevronUpIcon,
+  ChatBubbleLeftRightIcon,
   Cog6ToothIcon,
   CpuChipIcon,
   CubeIcon,
@@ -101,6 +102,7 @@ export const Cube = icon(CubeIcon);
 export const Sun = icon(SunIcon, 17);
 export const Moon = icon(MoonIcon, 17);
 export const Chart = icon(ChartBarSquareIcon);
+export const Chat = icon(ChatBubbleLeftRightIcon);
 export const Key = icon(KeyIcon);
 export const Bot = icon(CpuChipIcon);
 export const Lock = icon(LockClosedIcon);

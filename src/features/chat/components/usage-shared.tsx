@@ -64,8 +64,8 @@ export function formatPeriodRange(period: UsagePeriod): string {
   const issuedStr = `${MONTHS[issued.m - 1]} ${issued.d}`;
   const range =
     from.y === to.y && from.m === to.m
-      ? `${MONTHS[from.m - 1]} ${from.d}–${to.d}, ${to.y}`
-      : `${MONTHS[from.m - 1]} ${from.d} – ${MONTHS[to.m - 1]} ${to.d}, ${to.y}`;
+      ? `${MONTHS[from.m - 1]} ${from.d}-${to.d}, ${to.y}`
+      : `${MONTHS[from.m - 1]} ${from.d} - ${MONTHS[to.m - 1]} ${to.d}, ${to.y}`;
   return `${range} · issued ${issuedStr}`;
 }
 
@@ -186,14 +186,14 @@ function MatrixCell({
   chip?: string;
 }) {
   if (value === null) {
-    return <span className="text-right text-[13px] text-muted">—</span>;
+    return <span className="text-right text-[13px] text-muted">-</span>;
   }
   return (
     <div className="group relative flex justify-end">
       <span className="flex items-center gap-1.5 text-right font-mono text-[13px]">
         {usd(value)}
         {chip && (
-          <span className="whitespace-nowrap rounded-full border border-border bg-surface-2 px-1.5 py-0.5 text-[9px] font-medium uppercase tracking-wide text-muted">
+          <span className="whitespace-nowrap rounded-pill border border-border bg-surface-2 px-1.5 py-0.5 text-[9px] font-medium uppercase tracking-wide text-muted">
             {chip}
           </span>
         )}
@@ -284,8 +284,10 @@ export function SettingsChip({ app }: { app: AppUsageEntry }) {
 export function Chip({ children, accent }: { children: ReactNode; accent?: boolean }) {
   return (
     <span
-      className={`rounded-full border px-2 py-0.5 text-[10px] font-medium uppercase tracking-wide ${
-        accent ? "border-accent/40 bg-accent/10 text-accent" : "border-border bg-surface-2 text-muted"
+      className={`rounded-pill border px-2 py-0.5 text-[10px] font-medium uppercase tracking-wide ${
+        accent
+          ? "border-border bg-surface-2 text-fg"
+          : "border-border bg-surface-2 text-muted"
       }`}
     >
       {children}
@@ -374,7 +376,7 @@ export function OutcomeTable({
             <span className="justify-self-end rounded-[var(--radius-sm)] border border-border bg-surface-2 px-1.5 py-0.5 text-[10px] font-medium text-muted">
               {item.chain}
             </span>
-            <span className="flex items-center justify-end gap-1 font-mono text-[11px] text-accent">
+            <span className="flex items-center justify-end gap-1 font-mono text-[11px] text-muted transition-colors hover:text-fg">
               {truncateHex(item.tx)}
               <ExternalLink size={11} />
             </span>
@@ -386,17 +388,165 @@ export function OutcomeTable({
 }
 
 /* ---------------------------------------------------------------------- */
+/* Stat tile (Usage + Statement)                                           */
+/* ---------------------------------------------------------------------- */
+
+export function StatTile({
+  label,
+  value,
+  detail,
+  primary,
+}: {
+  label: string;
+  value: string;
+  detail?: string;
+  primary?: boolean;
+}) {
+  return (
+    <div className="flex min-w-0 flex-col gap-1 rounded-[var(--radius-md)] border border-border bg-background/40 px-3 py-3 sm:px-4 sm:py-3.5">
+      <span className="truncate text-[11px] text-muted">{label}</span>
+      <span
+        className={`truncate font-mono font-semibold tabular-nums ${
+          primary ? "text-lg sm:text-xl" : "text-base sm:text-lg"
+        }`}
+      >
+        {value}
+      </span>
+      {detail && <span className="truncate text-[10px] text-muted">{detail}</span>}
+    </div>
+  );
+}
+
+export const USAGE_MATRIX_HINT =
+  "Hover a cell for counts · — means not billed · $0 + app key = app BYOK";
+
+export function SectionHeading({ title, hint }: { title: string; hint?: string }) {
+  return (
+    <div className="flex flex-wrap items-baseline justify-between gap-2 px-0.5">
+      <span className="text-sm font-medium leading-none">{title}</span>
+      {hint && <span className="text-[11px] text-muted">{hint}</span>}
+    </div>
+  );
+}
+
+export function PeriodTotalHero({
+  periodLabel,
+  totalUsd,
+  periodCaption = "Current period",
+}: {
+  periodLabel: string;
+  totalUsd: number;
+  periodCaption?: string;
+}) {
+  return (
+    <div className="flex items-end justify-between gap-4 border-b border-border pb-4">
+      <div className="min-w-0 flex flex-col gap-1">
+        <span className="text-[10px] font-medium uppercase tracking-[0.08em] text-muted">
+          {periodCaption}
+        </span>
+        <span className="text-lg font-semibold leading-none tracking-[-0.01em]">{periodLabel}</span>
+      </div>
+      <div className="shrink-0 text-right">
+        <span className="font-mono text-2xl font-semibold tabular-nums leading-none">
+          {usd(totalUsd)}
+        </span>
+        <span className="mt-1 block text-[11px] text-muted">Total spend</span>
+      </div>
+    </div>
+  );
+}
+
+function monthActivityStats(month: MonthlyStatement) {
+  const turns = month.apps.reduce((s, a) => s + a.model.turns, 0);
+  const toolCalls = month.apps.reduce((s, a) => s + (a.tool?.calls ?? 0), 0);
+  const txns = month.apps.reduce((s, a) => s + (a.outcome?.txns ?? 0), 0);
+  const { payment, summary } = month;
+  const over = payment.x402SettledUsd > 0;
+  const creditsPct = Math.min(
+    100,
+    (payment.allowanceCredits.used / payment.allowanceCredits.included) * 100,
+  );
+  const computeShare = Math.round((summary.computeUsd / summary.totalUsd) * 100);
+  const onchainShare = 100 - computeShare;
+
+  return { turns, toolCalls, txns, over, creditsPct, computeShare, onchainShare };
+}
+
+export function SpendBreakdownSection({ month }: { month: MonthlyStatement }) {
+  const { summary } = month;
+  const { turns, toolCalls, txns, computeShare, onchainShare } = monthActivityStats(month);
+
+  return (
+    <section className="flex flex-col gap-2.5">
+      <SectionHeading
+        title="Spend breakdown"
+        hint={`${computeShare}% compute · ${onchainShare}% on-chain`}
+      />
+      <div className="grid grid-cols-3 gap-2 sm:gap-2.5">
+        <StatTile label="Models" value={usd(summary.modelUsd)} detail={`${turns} turns`} />
+        <StatTile label="Tool calls" value={usd(summary.toolUsd)} detail={`${toolCalls} calls`} />
+        <StatTile
+          label="On-chain"
+          value={usd(summary.onchainUsd)}
+          detail={`${txns} txn${txns === 1 ? "" : "s"}`}
+        />
+      </div>
+      <p className="px-0.5 text-[12px] leading-snug text-muted">
+        Compute subtotal {usd(summary.computeUsd)} (models + tools)
+        {summary.managedMarkupUsd > 0 && (
+          <> · includes {usd(summary.managedMarkupUsd)} managed markup on third-party apps</>
+        )}
+        . On-chain fees settle separately in-token on your transactions.
+      </p>
+    </section>
+  );
+}
+
+export function AllowanceSettlementSection({ month }: { month: MonthlyStatement }) {
+  const { payment } = month;
+  const { over, creditsPct } = monthActivityStats(month);
+
+  return (
+    <section className="flex flex-col gap-2.5">
+      <SectionHeading title="Allowance & settlement" />
+      <div className="overflow-hidden rounded-[var(--radius-md)] border border-border bg-background/40">
+        <div className="flex flex-wrap items-center justify-between gap-2 border-b border-border px-4 py-3 sm:px-5">
+          <span className="text-[13px] font-medium text-fg">Monthly credits</span>
+          <span className="text-[13px] tabular-nums text-muted">
+            {payment.allowanceCredits.used.toLocaleString()} /{" "}
+            {payment.allowanceCredits.included.toLocaleString()} used
+          </span>
+        </div>
+        <div className="flex flex-col gap-2.5 px-4 py-3.5 sm:px-5">
+          <Meter pct={creditsPct} over={over} />
+          <span className="text-[12px] leading-snug text-muted">
+            Paid via {payment.settledVia}.{" "}
+            {over
+              ? `${usd(payment.x402SettledUsd)} billed via x402 beyond your ${usd(
+                  payment.allowanceAppliedUsd,
+                )} monthly allowance.`
+              : `Compute fully covered by your allowance (${usd(
+                  payment.allowanceAppliedUsd,
+                )} applied).`}
+            {" "}
+            On-chain fees {payment.onchainNote}.
+          </span>
+        </div>
+      </div>
+    </section>
+  );
+}
+
+/* ---------------------------------------------------------------------- */
 /* Meter                                                                   */
 /* ---------------------------------------------------------------------- */
 
 export function Meter({ pct, over }: { pct: number; over?: boolean }) {
   return (
-    <div className="h-1.5 w-full overflow-hidden rounded-full bg-surface-2">
+    <div className="h-1 w-full overflow-hidden rounded-pill bg-surface-2">
       <div
-        className={`h-full rounded-full ${
-          over
-            ? "bg-gradient-to-r from-accent-strong to-accent-strong"
-            : "bg-gradient-to-r from-accent to-accent-strong"
+        className={`h-full rounded-pill transition-[width] ${
+          over ? "bg-fg/70" : "bg-fg/45"
         }`}
         style={{ width: `${Math.max(pct, 2)}%` }}
       />
