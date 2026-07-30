@@ -1,55 +1,43 @@
-# aomi-chat-design
+# Aomi Portal
 
-Clickable **design mock** of the Aomi chat journey — a standalone playground
-(like Aomi Build) for iterating on the chat experience without the real
-portal, auth, backend, or wallet signing.
+Interactive front-end prototype of the [Aomi](https://aomi.dev) portal — chat, wallets, settings, billing, and apps store. Real UI architecture and complete user journeys, running locally without production auth or backend dependencies.
 
-> **Simulation only.** No real auth, signing, BFF, secrets, or production data.
-> See "Never copy into the mock" in [`CHAT-ARCHITECTURE.md`](./CHAT-ARCHITECTURE.md) §8.
+Sandbox for what ships at [chat.aomi.dev](https://chat.aomi.dev). Proven surfaces port incrementally into [`aomi-labs/aomi`](https://github.com/aomi-labs/aomi) → `apps/portal`.
 
-## Status
+> **Simulation only.** No real auth, signing, BFF, or secret storage.
 
-Skeleton scaffold. **Visual design is intentionally not implemented** — it is
-waiting on a design reference (sketch / Figma / screenshots). The current UI is
-structural placeholders only; do not invent a look before the reference lands.
+---
+
+## What works
+
+- **Chat shell** — sidebar, threads, composer, working trace, transaction previews (swap, bridge, deploy, balances)
+- **Wallet flows** — approve / reject / cancel, plus gate overlays (payment required, secrets missing, disconnect)
+- **Settings** — six-tab modal over chat (General, Account, Usage, App Keys, Bots, Secrets)
+- **Billing** — usage dashboard and full **`/statement`** view with itemized line items
+- **Apps store** — modal overlay with install/uninstall, search, and catalog (matches production Packages pattern)
+- **Session controller** — single hook drives overlays, tabs, gates, and thread lifecycle
+
+---
 
 ## Stack
 
-- Next.js 16 (App Router)
-- React 19
-- Tailwind CSS 4
-- TypeScript
+Next.js 16 · React 19 · TypeScript · Tailwind CSS 4 · `@aomi-labs/design`
 
-## Getting started
+---
+
+## Run locally
 
 ```bash
 pnpm install
 pnpm dev
 ```
 
-Then open http://localhost:3000.
+Open [http://localhost:3000](http://localhost:3000).
 
-## Layout
+---
 
-```text
-CHAT-ARCHITECTURE.md          # journey map, surfaces, state matrix, guardrails
-src/app/page.tsx              # thin → ChatMockView
-src/features/chat/
-  chat-view.tsx               # thin orchestrator (structural placeholders)
-  contracts.ts                # typed contracts (surfaces + state matrix)
-  fixtures.ts                 # safe-to-fake seed data only
-  hooks/use-chat-session.ts   # single simulation driver
-  components/                 # surface components — added with the design
-```
+## Related
 
-## Scope
-
-Core journey only (per `CHAT-ARCHITECTURE.md` §7): empty → chat → working trace
-→ wallet approval → settings. No deployments, device-auth, or MCP flows.
-
-## Next steps
-
-1. Receive the design reference.
-2. Author `CHAT-EXPERIENCE.md` (map, mock-vs-target, phases).
-3. Build surface components under `src/features/chat/components/`.
-4. Flesh out `use-chat-session` timing with honest simulation labels.
+- [aomi-labs/aomi](https://github.com/aomi-labs/aomi) — production monorepo
+- [aomi-labs/design](https://github.com/aomi-labs/design) — shared design system
+- [`CHAT-ARCHITECTURE.md`](./CHAT-ARCHITECTURE.md) — architecture map & production parity checklist

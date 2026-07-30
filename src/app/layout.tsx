@@ -13,9 +13,9 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "Aomi Chat — Design Mock",
+  title: "Aomi Portal",
   description:
-    "Clickable mock of the Aomi chat journey. Simulation only — no real auth, signing, or backend.",
+    "Interactive preview of the Aomi portal chat experience. Simulation only. No real auth, signing, or backend.",
 };
 
 export default function RootLayout({
@@ -27,8 +27,11 @@ export default function RootLayout({
     <html
       lang="en"
       className={`${geistSans.variable} ${geistMono.variable} h-full antialiased`}
+      suppressHydrationWarning
     >
-      <body className="min-h-full flex flex-col">{children}</body>
+      <body className="min-h-full flex flex-col" suppressHydrationWarning>
+        {children}
+      </body>
     </html>
   );
 }

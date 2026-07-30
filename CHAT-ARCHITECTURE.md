@@ -2,7 +2,7 @@
 
 > **Purpose:** Reference for a separate clickable-mock redesign repo (like Aomi Build).  
 > **Not included:** Visual redesign, fonts, colors, or invented UI craft.  
-> **Design reference:** Still pending from Cecilia / product. Do not invent a look without it.  
+> **Design reference:** Still pending from product. Do not invent a look without it.  
 > **Last updated:** 2026-07-18
 
 Related live code lives mainly in:
@@ -114,23 +114,23 @@ Backend wallet request → ClientSession → RuntimeTxHandler → external walle
 
 ## 5. Checklist — before you design
 
-- [ ] Cecilia product direction confirmed (separate mock repo, like Build)
+- [ ] Product direction confirmed (separate mock repo, like Build)
 - [ ] **Design reference received** (sketch / Figma / screenshots) — do not invent look without it
-- [ ] Repo name agreed (`aomi-labs/aomi-chat-design`)
+- [ ] Repo name agreed (`aomi-labs/aomi-portal`)
 - [ ] Stack agreed (Next.js 16 + React 19 + Tailwind 4)
 - [ ] Scope agreed (core journey: empty → chat → trace → wallet → settings)
 - [ ] Non-goals written (no real auth, signing, BFF, secrets, deployments)
 
 ## 6. Checklist — repo / mock infrastructure
 
-- [ ] Create GitHub repo `aomi-labs/aomi-chat-design`
+- [ ] Create GitHub repo `aomi-labs/aomi-portal`
 - [ ] Scaffold Next app: thin `page.tsx` → feature orchestrator
 - [ ] Add `CHAT-EXPERIENCE.md` (map, journey, mock-vs-target, bring/don't copy, phases)
 - [ ] Typed `contracts.ts` + `fixtures.ts` (seeded threads/messages/tools/wallet/settings)
 - [ ] `use-chat-session` timer driver with honest **Simulation** labels
 - [ ] Versioned localStorage for UI prefs only — never real keys/cookies/message bodies
 - [ ] One shell/runtime tree — settings must not remount a second provider
-- [ ] Click-through script for Cecilia review gate
+- [ ] Click-through script for product review gate
 
 ## 7. Checklist — core journey coverage
 
@@ -178,7 +178,7 @@ Backend wallet request → ClientSession → RuntimeTxHandler → external walle
 ## 9. Suggested mock repo layout (scaffold only)
 
 ```text
-aomi-chat-design/
+aomi-portal/
   README.md
   CHAT-EXPERIENCE.md          # write after design reference exists
   src/app/page.tsx            # thin → ChatMockView
