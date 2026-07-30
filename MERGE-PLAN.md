@@ -2,7 +2,7 @@
 
 **Source branch:** `feat/settings-usage-statement` @ `ace9d0f`  
 **Target:** Design shell (Paper V2, `useChatSession`, Mode B, left settings nav, login/logout)  
-**Scope:** `aomi-chat-design` only — no backend, no `aomi` monorepo  
+**Scope:** `aomi-portal` only — no backend, no `aomi` monorepo  
 **Goal:** Product features + design shell + one fixture (`user-fixture.json`)
 
 ---
@@ -461,7 +461,7 @@ flowchart LR
 **Prerequisite:** Phase A commits (6–13) landed on `main` — local WIP is committed, not sitting dirty.
 
 ```bash
-cd aomi-chat-design
+cd aomi-portal
 git checkout main && git pull   # after Phase A pushed
 git checkout -b feat/merge-settings-usage
 git fetch origin feat/settings-usage-statement
@@ -923,7 +923,7 @@ When moving mock → `apps/portal`:
 
 ```mermaid
 flowchart LR
-  subgraph mock [aomi-chat-design today]
+  subgraph mock [aomi-portal today]
     UF2["user-fixture.json"]
     Panels["Settings panels"]
   end
@@ -978,4 +978,4 @@ Begin **S1** on the feature branch (do **not** checkout the source branch minima
 
 Login/logout and left settings section stay throughout.
 
-**Reference branch:** https://github.com/aomi-labs/aomi-chat-design/tree/feat/settings-usage-statement
+**Reference branch:** https://github.com/aomi-labs/aomi-portal/tree/feat/settings-usage-statement

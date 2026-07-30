@@ -13,9 +13,9 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "Aomi Chat — Design Mock",
+  title: "Aomi Portal",
   description:
-    "Clickable mock of the Aomi chat journey. Simulation only — no real auth, signing, or backend.",
+    "Interactive preview of the Aomi portal chat experience. Simulation only. No real auth, signing, or backend.",
 };
 
 export default function RootLayout({

@@ -1,6 +1,6 @@
 # Chat mock ↔ `@aomi-labs/design` — theme reconciliation
 
-> **Purpose:** Decide how the interactive chat mock (`aomi-chat-design`) aligns with the
+> **Purpose:** Decide how the interactive chat mock (`aomi-portal`) aligns with the
 > official design system before any token/CSS apply.  
 > **Sources:** `src/app/globals.css` (mock) · `../design/src/tokens/tokens.css` (DS) ·
 > live portal on `main` (shadcn zinc + monochrome chat roles)  
@@ -11,7 +11,7 @@
 
 ## 1. Executive summary
 
-| Question | Mock today (`aomi-chat-design`) | `@aomi-labs/design` |
+| Question | Mock today (`aomi-portal`) | `@aomi-labs/design` |
 |----------|--------------------------------|---------------------|
 | **Chat canvas** | Warm **cream** light stack; cool **zinc** dark stack (layered planes) | **Cool zinc** light + dark; chat surface intentionally **monochrome** |
 | **Primary CTA** | **Orange** (light) / **Lemon** (dark) gradient buttons | **Ink** near-black (light) / near-white (dark) via `--aomi-primary` |
@@ -112,7 +112,7 @@ DS should expose **semantic hooks** (`--aomi-chat-accent`, `--aomi-chat-composer
 ```text
 @aomi-labs/design/tokens.css          ← upstream semantic roles + ramps
         ↓
-aomi-chat-design/src/app/
+aomi-portal/src/app/
   design-tokens.css                   ← @import DS; chat-product overrides only
   globals.css                         ← mock aliases (--background → semantic)
         ↓
@@ -167,7 +167,7 @@ The mock is **ahead visually** and **denser in IA** (tx, wallets, trace). Reconc
 
 ## 8. Checklist before code apply
 
-- [x] Mode A spike in `aomi-chat-design` (`design-tokens.css` + `globals.css` aliases)
+- [x] Mode A spike in `aomi-portal` (`design-tokens.css` + `globals.css` aliases)
 - [x] Mode B apply — DS brand tokens, ink CTAs, sky accent, monochrome chat surfaces
 - [ ] Product sign-off on Mode B vs reverting to chat-product accent
 - [ ] Confirm whether **PT Serif** appears in chat hero only or nowhere
@@ -181,7 +181,7 @@ The mock is **ahead visually** and **denser in IA** (tx, wallets, trace). Reconc
 ## 9. Next steps (ordered)
 
 1. **Review this doc** with product (async OK)
-2. **Mode A spike** in `aomi-chat-design`: add `design-tokens.css` importing `@aomi-labs/design/tokens.css` + chat overrides
+2. **Mode A spike** in `aomi-portal`: add `design-tokens.css` importing `@aomi-labs/design/tokens.css` + chat overrides
 3. **Side-by-side localhost** — current mock vs wired mock (toggle class or branch)
 4. **Paper sync** for token swatches on **aomi chat** page
 5. **Later:** thin portal PR mapping widget shell to same chat-product theme (separate from closed PR #365)
@@ -192,7 +192,7 @@ The mock is **ahead visually** and **denser in IA** (tx, wallets, trace). Reconc
 
 | Asset | Path |
 |-------|------|
-| Mock tokens | `aomi-chat-design/src/app/globals.css` |
+| Mock tokens | `aomi-portal/src/app/globals.css` |
 | Design system | `design/src/tokens/tokens.css`, `design/docs/tokens.md` |
 | DS playground | `design/playground/` (`pnpm dev` → :5173) |
 | Build vendored tokens | `aomi/apps/aomi-build/src/app/aomi-design-tokens.css` |

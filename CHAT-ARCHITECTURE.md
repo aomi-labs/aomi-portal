@@ -116,14 +116,14 @@ Backend wallet request → ClientSession → RuntimeTxHandler → external walle
 
 - [ ] Product direction confirmed (separate mock repo, like Build)
 - [ ] **Design reference received** (sketch / Figma / screenshots) — do not invent look without it
-- [ ] Repo name agreed (`aomi-labs/aomi-chat-design`)
+- [ ] Repo name agreed (`aomi-labs/aomi-portal`)
 - [ ] Stack agreed (Next.js 16 + React 19 + Tailwind 4)
 - [ ] Scope agreed (core journey: empty → chat → trace → wallet → settings)
 - [ ] Non-goals written (no real auth, signing, BFF, secrets, deployments)
 
 ## 6. Checklist — repo / mock infrastructure
 
-- [ ] Create GitHub repo `aomi-labs/aomi-chat-design`
+- [ ] Create GitHub repo `aomi-labs/aomi-portal`
 - [ ] Scaffold Next app: thin `page.tsx` → feature orchestrator
 - [ ] Add `CHAT-EXPERIENCE.md` (map, journey, mock-vs-target, bring/don't copy, phases)
 - [ ] Typed `contracts.ts` + `fixtures.ts` (seeded threads/messages/tools/wallet/settings)
@@ -178,7 +178,7 @@ Backend wallet request → ClientSession → RuntimeTxHandler → external walle
 ## 9. Suggested mock repo layout (scaffold only)
 
 ```text
-aomi-chat-design/
+aomi-portal/
   README.md
   CHAT-EXPERIENCE.md          # write after design reference exists
   src/app/page.tsx            # thin → ChatMockView
