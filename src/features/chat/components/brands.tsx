@@ -102,6 +102,12 @@ export const ParaMark = markup(
   "#FF4E1B",
 );
 
+export const PrivyMark = markup(
+  "0 0 24 24",
+  '<rect x="4" y="4" width="7" height="7" rx="2" fill="currentColor"/><rect x="13" y="4" width="7" height="7" rx="2" fill="currentColor" opacity="0.88"/><rect x="4" y="13" width="7" height="7" rx="2" fill="currentColor" opacity="0.88"/>',
+  "#FF775F",
+);
+
 export function PhantomMark({ size = 16, ...props }: BrandProps) {
   return (
     <svg
@@ -312,6 +318,7 @@ const WALLET_MARKS: Record<string, (p: { size?: number }) => React.ReactNode> = 
   backpack: BackpackMark,
   glow: GlowMark,
   para: ParaMark,
+  privy: PrivyMark,
 };
 
 /** Wallet id or name → brand mark (null when unknown). */

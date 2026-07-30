@@ -5,9 +5,9 @@
     "userByok": false,
     "creditUsd": 0.01,
     "modelBilling": {
-      "nativeDefaultApp": "base cost — no markup (Aomi's own app)",
+      "nativeDefaultApp": "base cost, no markup (Aomi's own app)",
       "thirdPartyManaged": "base + 10% (managed_model_rate) when the app does NOT BYOK",
-      "thirdPartyAppByok": "app runs on its own model key — Aomi does not bill the user for model"
+      "thirdPartyAppByok": "app runs on its own model key. Aomi does not bill the user for model"
     },
     "toolBilling": "flat per-call price the app declares; success-only",
     "outcomeBilling": "on-chain fee = flow × bps, paid in the flowed token to the app's beneficiary"
@@ -61,7 +61,7 @@
             "modelKey": "managed",
             "appByok": false,
             "managedMarkupPct": 0,
-            "note": "Native app — model billed at base cost, no markup"
+            "note": "Native app. Model billed at base cost, no markup"
           },
           "model": {
             "baseUsd": 19.95,
@@ -87,7 +87,7 @@
             "modelKey": "managed",
             "appByok": false,
             "managedMarkupPct": 10,
-            "note": "Third-party app on Aomi's managed key — model billed at base + 10%"
+            "note": "Third-party app on Aomi's managed key. Model billed at base + 10%"
           },
           "model": {
             "baseUsd": 11.5,
@@ -127,7 +127,7 @@
             "modelKey": "byok",
             "appByok": true,
             "managedMarkupPct": 0,
-            "note": "App runs on its own model key (BYOK) — Aomi does not bill the user for model"
+            "note": "App runs on its own model key (BYOK). Aomi does not bill the user for model"
           },
           "model": {
             "baseUsd": 1.35,
@@ -158,7 +158,7 @@
             "modelKey": "managed",
             "appByok": false,
             "managedMarkupPct": 10,
-            "note": "Third-party app on Aomi's managed key — model billed at base + 10%"
+            "note": "Third-party app on Aomi's managed key. Model billed at base + 10%"
           },
           "model": {
             "baseUsd": 3.5,
@@ -231,7 +231,7 @@
             "modelKey": "managed",
             "appByok": false,
             "managedMarkupPct": 0,
-            "note": "Native app — model billed at base cost, no markup"
+            "note": "Native app. Model billed at base cost, no markup"
           },
           "model": {
             "baseUsd": 14.2,
@@ -257,7 +257,7 @@
             "modelKey": "managed",
             "appByok": false,
             "managedMarkupPct": 10,
-            "note": "Third-party app on Aomi's managed key — model billed at base + 10%"
+            "note": "Third-party app on Aomi's managed key. Model billed at base + 10%"
           },
           "model": {
             "baseUsd": 8.0,
@@ -294,7 +294,7 @@
             "modelKey": "managed",
             "appByok": false,
             "managedMarkupPct": 10,
-            "note": "Third-party app on Aomi's managed key — model billed at base + 10%"
+            "note": "Third-party app on Aomi's managed key. Model billed at base + 10%"
           },
           "model": {
             "baseUsd": 2.6,
@@ -331,7 +331,7 @@
             "modelKey": "byok",
             "appByok": true,
             "managedMarkupPct": 0,
-            "note": "App runs on its own model key (BYOK) — Aomi does not bill the user for model"
+            "note": "App runs on its own model key (BYOK). Aomi does not bill the user for model"
           },
           "model": {
             "baseUsd": 0.95,
@@ -397,7 +397,7 @@
             "modelKey": "managed",
             "appByok": false,
             "managedMarkupPct": 0,
-            "note": "Native app — model billed at base cost, no markup"
+            "note": "Native app. Model billed at base cost, no markup"
           },
           "model": {
             "baseUsd": 2.1,
@@ -422,7 +422,7 @@
             "modelKey": "managed",
             "appByok": false,
             "managedMarkupPct": 10,
-            "note": "Third-party app on Aomi's managed key — model billed at base + 10%"
+            "note": "Third-party app on Aomi's managed key. Model billed at base + 10%"
           },
           "model": {
             "baseUsd": 1.0,
@@ -459,7 +459,7 @@
             "modelKey": "byok",
             "appByok": true,
             "managedMarkupPct": 0,
-            "note": "App runs on its own model key (BYOK) — Aomi does not bill the user for model"
+            "note": "App runs on its own model key (BYOK). Aomi does not bill the user for model"
           },
           "model": {
             "baseUsd": 0.35,

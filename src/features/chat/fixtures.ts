@@ -78,27 +78,6 @@ export const seedWalletPolicies: WalletPolicy[] = [
     lastPermit: "you · Jul 12",
   },
   {
-    id: "w-siws",
-    chain: "svm",
-    address: "9xQm…4kZ7",
-    linkedVia: "siws",
-    rdns: "app.phantom",
-    desiredMode: "human_sync",
-    authVersion: 1,
-    lastPermit: "you · Jul 9",
-  },
-  {
-    id: "w-privy",
-    chain: "svm",
-    address: "8xKn…9QpS",
-    linkedVia: "privy",
-    desiredMode: "auto",
-    grantActive: true,
-    grantExpiresLabel: "Aug 3, 2026",
-    authVersion: 4,
-    lastPermit: "you · Jul 20",
-  },
-  {
     id: "w-para",
     chain: "evm",
     address: "0x9f2B…A41c",
@@ -110,23 +89,15 @@ export const seedWalletPolicies: WalletPolicy[] = [
     lastPermit: "you · Jul 2",
   },
   {
-    id: "w-privy-locked",
-    chain: "evm",
-    address: "0x2E9a…B73c",
+    id: "w-privy",
+    chain: "svm",
+    address: "8xKn…9QpS",
     linkedVia: "privy",
-    desiredMode: "denied",
-    authVersion: 2,
-    lastPermit: "you · Jul 15",
-  },
-  {
-    id: "w-para-readonly",
-    chain: "evm",
-    address: "0x8B4d…F19a",
-    linkedVia: "para",
-    readOnly: true,
-    desiredMode: "denied",
-    authVersion: 1,
-    lastPermit: "Jul 8",
+    desiredMode: "auto",
+    grantActive: true,
+    grantExpiresLabel: "Aug 3, 2026",
+    authVersion: 4,
+    lastPermit: "you · Jul 20",
   },
   {
     id: "w-readonly",
@@ -340,7 +311,7 @@ export const deployTx: TxPreview = {
   receiveLabel: "Supply",
   receiveAmount: "1,000,000",
   rate: "18 decimals",
-  slippage: "—",
+  slippage: "-",
   gas: "~$12.40",
   status: "ready",
   approveLabel: "Approve deploy",
@@ -350,7 +321,7 @@ export const swapAnswer =
   "Best route found on Uniswap v3. You’ll receive an estimated 1,612.40 USDC for 0.5 ETH. Review and approve in your wallet to continue.";
 
 export const balanceAnswer =
-  "Across Ethereum you hold 1.82 ETH, 4,210 USDC, and 0.4 WETH. Largest position is USDC (~61%). Simulation only — balances are fixtures.";
+  "Across Ethereum you hold 1.82 ETH, 4,210 USDC, and 0.4 WETH. Largest position is USDC (~61%). Simulation only. Balances are fixtures.";
 
 export const bridgeAnswer =
   "Bridge quote ready: 100 USDC Ethereum → Base via official bridge. Est. arrival ~2 min. Fee ~$0.40. Simulation only.";
@@ -494,7 +465,7 @@ export const secretGate: Gate = {
   kind: "requiredSecret",
   title: "Required secret missing",
   message:
-    "Hyperliquid needs an API key before this order can continue. Simulation only — nothing is stored.",
+    "Hyperliquid needs an API key before this order can continue. Simulation only. Nothing is stored.",
   secretLabel: "Hyperliquid API key",
 };
 
